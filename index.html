@@ -211,6 +211,12 @@ td.c,th.c{text-align:center}
 pre{background:#0d0f12;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:13px}
 .perm td,.perm th{font-size:13px}
 .yes{color:var(--ok);font-weight:800}.no{color:var(--bad);font-weight:800}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px;overflow-x:auto;padding-bottom:2px}
+.bar{flex:1;min-width:20px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px}
+.bar i{display:block;width:100%;height:var(--h);min-height:3px;border-radius:7px 7px 3px 3px;background:var(--goldgrad);transform-origin:bottom;animation:growy .8s var(--ease) both;box-shadow:0 4px 12px rgba(217,178,95,.2)}
+.bar i.neg{background:linear-gradient(180deg,#f0907f,#c9584a)}
+.bar span{font-size:10px;color:var(--mute)}
+@keyframes growy{from{transform:scaleY(0)}}
 .printhead,.printfoot{display:none}
 
 @media print{
@@ -467,6 +473,26 @@ async function fetchRange(from,to,withLedger=true){
   return {cards:c.data, ledger:l.data};
 }
 const total = (a,f)=>a.reduce((s,x)=>s+(Number(f(x))||0),0);
+const addDays=(d,n)=>{ const [y,m,dd]=d.split('-').map(Number); const x=new Date(y,m-1,dd+n); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; };
+function byDay(cards,ledger){
+  const m={}, g=d=>m[d]||(m[d]={date:d,n:0,cut:0,value:0,exp:0,inc:0,net:0});
+  cards.forEach(c=>{ const o=g(c.entry_date); o.n++; o.cut+=+c.cutting||0; o.value+=+c.card_value||0; });
+  ledger.forEach(x=>{ const o=g(x.entry_date); if(x.kind==='income') o.inc+=+x.amount||0; else o.exp+=+x.amount||0; });
+  Object.values(m).forEach(o=>o.net=o.cut+o.inc-o.exp);
+  return m;
+}
+function barsHTML(days,key){
+  const max=Math.max(1,...days.map(d=>Math.abs(d[key])));
+  return `<div class="bars">${days.map(d=>`<div class="bar"><i class="${d[key]<0?'neg':''}" style="--h:${Math.round(Math.abs(d[key])/max*100)}%"></i><span>${d.date.slice(8)}</span></div>`).join('')}</div>`;
+}
+function dayTable(days){
+  const rows=[...days].reverse();
+  const t=days.reduce((a,d)=>({n:a.n+d.n,cut:a.cut+d.cut,exp:a.exp+d.exp,net:a.net+d.net}),{n:0,cut:0,exp:0,net:0});
+  return `<div class="scroll"><table style="margin-top:12px"><tr><th>Date</th><th class="n">Cards</th><th class="n">Cutting</th><th class="n">Expenses</th><th class="n">Net earning</th></tr>
+    ${rows.map(d=>`<tr><td>${fmtDate(d.date)}</td><td class="n">${d.n}</td><td class="n">${rs(d.cut)}</td><td class="n">${rs(d.exp)}</td><td class="n"><b style="color:${d.net<0?'var(--bad)':'var(--gold-hi)'}">${rs(d.net)}</b></td></tr>`).join('')}
+    <tr><td><b>Total</b></td><td class="n"><b>${t.n}</b></td><td class="n"><b>${rs(t.cut)}</b></td><td class="n"><b>${rs(t.exp)}</b></td><td class="n"><b>${rs(t.net)}</b></td></tr></table></div>
+    <div class="hint"><span>Net earning = cutting + other income − expenses</span></div>`;
+}
 function summarize(cards,ledger){
   const value=total(cards,c=>c.card_value), cut=total(cards,c=>c.cutting);
   const paidCut=total(cards.filter(c=>c.paid),c=>c.cutting);
@@ -497,8 +523,15 @@ async function vHome(){
   loading(true);
   try{
     const t=todayStr();
-    const [{cards,ledger}, pend]=await Promise.all([ fetchRange(t,t,isAdmin()), sb.from('cards').select('id',{count:'exact',head:true}).eq('status','pending') ]);
+    const [wk, pend]=await Promise.all([ fetchRange(isAdmin()?addDays(t,-6):t,t,isAdmin()), sb.from('cards').select('id',{count:'exact',head:true}).eq('status','pending') ]);
+    const cards=wk.cards.filter(c=>c.entry_date===t), ledger=wk.ledger.filter(x=>x.entry_date===t);
     const s=summarize(cards,ledger);
+    let week='';
+    if(isAdmin()){
+      const m=byDay(wk.cards,wk.ledger), days=[];
+      for(let i=6;i>=0;i--){ const d=addDays(t,-i); days.push(m[d]||{date:d,n:0,cut:0,value:0,exp:0,inc:0,net:0}); }
+      week=`<h3><span>Last 7 days earnings</span></h3><div class="card">${barsHTML(days,'net')}${dayTable(days)}</div>`;
+    }
     const list=`<h3>${T("Today's entries")}</h3>${cards.length?cards.map(cardItem).join(''):'<div class="empty">No entries yet today.</div>'}`;
     if(isAdmin()){
       render(`
@@ -511,6 +544,7 @@ async function vHome(){
           <div class="card stat"><div class="l">${T('Net today')}</div><div class="v">${num(s.profit)}</div></div>
         </div>
         <button class="btn" onclick="go('add')"><span>New card entry</span><span class="ur" lang="ur">${UR['New card entry']}</span></button>
+        <div>${week}</div>
         <div>${list}</div>`);
     }else{
       render(`
@@ -827,6 +861,8 @@ async function runReport(){
   const box=$('#rb'); box.innerHTML=skel(2,true);
   try{
     rData=await fetchRange(rFrom,rTo); const {cards,ledger}=rData; const s=summarize(cards,ledger);
+    const dl=Object.values(byDay(cards,ledger)).sort((a,b)=>a.date<b.date?-1:1);
+    const dayHTML=`<h3><span>Day-by-day earnings</span></h3><div class="card">${dl.length?barsHTML(dl.slice(-31),'net')+dayTable(dl):'<div class="empty" style="border:0">No entries in this range.</div>'}</div>`;
     box.innerHTML=`
       <div class="hero"><div class="l"><span>${fmtDate(rFrom)} to ${fmtDate(rTo)}</span><span class="ur" lang="ur">${UR['Total cutting']}</span></div><div class="v">${num(s.cut)}</div><div class="s">${s.n} cards</div></div>
       <div class="card"><table>
@@ -838,6 +874,7 @@ async function runReport(){
         <tr><td>${T('Expenses')}</td><td class="n">${rs(s.exp)}</td></tr>
         <tr><td><b>${T('Net profit')}</b></td><td class="n"><b>${rs(s.profit)}</b></td></tr></table></div>
       <div class="row noprint"><button class="btn ghost" id="csv"><span>Export Excel (CSV)</span><span class="ur" lang="ur">${UR['Export Excel (CSV)']}</span></button><button class="btn ghost" id="pdf"><span>Print / PDF</span><span class="ur" lang="ur">${UR['Print / PDF']}</span></button></div>
+      ${dayHTML}
       <h3>${T('Cards (all)')}</h3>
       <div class="card scroll"><table><tr><th>Date</th><th>Card</th><th>Customer</th><th>Type</th><th class="n">Value</th><th class="n">Cutting</th><th>Status</th><th>Paid</th></tr>
       ${cards.map(c=>`<tr><td>${fmtDate(c.entry_date)}</td><td>${esc(c.card_no)}</td><td>${esc(c.customer_no)}</td><td>${esc(c.category)}</td><td class="n">${Math.round(c.card_value)}</td><td class="n">${Math.round(c.cutting)}</td><td>${c.status}</td><td>${c.paid?'Yes':'No'}</td></tr>`).join('')||'<tr><td colspan="8">No cards in this range.</td></tr>'}</table></div>`;
