@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17181a">
+<title>RANA MOBILE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{
+  --bg:#17181a; --panel:#202225; --panel2:#27292d; --line:#33363b;
+  --gold:#d4a84b; --gold2:#f0cf86; --text:#ece8df; --mute:#9b978d;
+  --ok:#6fbf8e; --bad:#e07b6a; --warn:#e3b45a;
+  --r:14px;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --body:'Hanken Grotesk','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.hidden{display:none!important}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;background:rgba(23,24,26,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.5px;color:var(--gold)}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--mute);letter-spacing:0}
+.iconbtn{background:var(--panel);border:1px solid var(--line);border-radius:12px;width:42px;height:42px;display:grid;place-items:center;cursor:pointer}
+main{max-width:760px;margin:0 auto;padding:16px}
+h2{font-family:var(--display);font-size:22px;margin:4px 0 14px;font-weight:700}
+h3{font-family:var(--display);font-size:16px;margin:22px 0 10px;font-weight:700;color:var(--gold2)}
+
+/* nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+nav.tabs button{flex:1;background:none;border:0;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:6px 0;cursor:pointer;min-width:0}
+nav.tabs button.on{color:var(--gold)}
+nav.tabs svg{width:22px;height:22px}
+nav.tabs .plus{color:#17181a;background:var(--gold);border-radius:50%;width:46px;height:46px;display:grid;place-items:center;margin-top:-18px;border:4px solid var(--panel)}
+nav.tabs .plus svg{width:24px;height:24px}
+
+/* cards & ui */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}
+.stat .l{color:var(--mute);font-size:13px}
+.stat .v{font-family:var(--display);font-size:22px;font-weight:700;margin-top:2px}
+.hero{background:linear-gradient(160deg,#2a2518,#202225 60%);border:1px solid #4a3f22;border-radius:18px;padding:20px}
+.hero .l{color:var(--gold2);font-size:14px}
+.hero .v{font-family:var(--display);font-weight:800;font-size:44px;color:var(--gold);line-height:1.1;margin:4px 0 10px}
+.hero .s{color:var(--mute);font-size:14px}
+label{display:block;font-size:13px;color:var(--mute);margin:14px 0 6px;font-weight:600}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 14px;min-height:48px}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);outline:none}
+.big{font-family:var(--display);font-size:22px;letter-spacing:2px;font-weight:700}
+.hint{font-size:12px;color:var(--mute);margin-top:5px;display:flex;justify-content:space-between}
+.hint.err{color:var(--bad)}
+.btn{background:var(--gold);color:#17181a;border:0;border-radius:12px;padding:14px 18px;font-weight:700;cursor:pointer;width:100%;min-height:50px}
+.btn:disabled{opacity:.5}
+.btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.btn.bad{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn.sm{width:auto;min-height:40px;padding:9px 14px;font-size:14px}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{flex:1}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.badge{display:inline-block;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid}
+.b-ok{color:var(--ok);border-color:#2f5f45;background:#1b2b22}
+.b-wait{color:var(--warn);border-color:#6a5524;background:#2b2417}
+.b-bad{color:var(--bad);border-color:#6a3329;background:#2d1d1a}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px;cursor:pointer}
+.item .no{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:1px}
+.item .sub{color:var(--mute);font-size:13px;margin-top:2px}
+.item .money{text-align:right}
+.item .money b{font-family:var(--display);color:var(--gold)}
+.empty{text-align:center;color:var(--mute);padding:36px 10px;border:1px dashed var(--line);border-radius:var(--r)}
+.seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;background:none;border:0;border-radius:9px;padding:10px;color:var(--mute);font-weight:600;cursor:pointer}
+.seg button.on{background:var(--gold);color:#17181a}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--mute);font-weight:600;font-size:12px}
+td.n,th.n{text-align:right}
+.scroll{overflow-x:auto}
+.proof{width:100%;border-radius:12px;border:1px solid var(--line);margin-top:8px;max-height:60vh;object-fit:contain;background:#000}
+
+/* modal / toast */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--panel);border-radius:20px 20px 0 0;width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom));border:1px solid var(--line)}
+@media(min-width:760px){.modal{align-items:center}.sheet{border-radius:20px}}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--gold);color:#17181a;padding:11px 18px;border-radius:12px;font-weight:700;z-index:80;max-width:90vw}
+.toast.bad{background:var(--bad)}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login .box{width:100%;max-width:380px}
+.login .logo{font-family:var(--display);font-weight:800;font-size:38px;color:var(--gold);text-align:center;letter-spacing:1px}
+.login p.t{text-align:center;color:var(--mute);margin:4px 0 22px}
+pre{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:13px}
+
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  header.top,nav.tabs,.noprint,.toast{display:none!important}
+  .card,.item,.hero{background:#fff!important;border:1px solid #bbb!important;color:#000!important}
+  .hero .v,.item .money b,h3{color:#000!important}
+  th,td{color:#000;border-color:#ccc}
+  .stat .l,.item .sub,.hero .l,.hero .s{color:#444!important}
+  .printhead{display:block!important}
+}
+.printhead{display:none;font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:6px}
+@media(prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login hidden">
+  <div class="box">
+    <div class="logo">RANA MOBILE</div>
+    <p class="t">Daily hisab &mdash; staff login</p>
+    <div class="card">
+      <label for="em" style="margin-top:0">Email</label>
+      <input id="em" type="email" autocomplete="username" placeholder="name@example.com">
+      <label for="pw">Password</label>
+      <input id="pw" type="password" autocomplete="current-password" placeholder="Password">
+      <div id="loginErr" class="hint err hidden" style="margin:10px 0"></div>
+      <button class="btn" id="loginBtn" style="margin-top:18px">Log in</button>
+    </div>
+    <p class="t" style="margin-top:16px;font-size:13px">Access is by invitation only.</p>
+  </div>
+</div>
+
+<div id="setupView" class="login hidden">
+  <div class="box" style="max-width:560px">
+    <div class="logo">RANA MOBILE</div>
+    <p class="t">One-time setup needed</p>
+    <div class="card">
+      <p style="margin-top:0">Open <b>index.html</b> in a text editor and fill in these two lines near the top of the script:</p>
+      <pre>const SUPABASE_URL = "https://xxxx.supabase.co";
+const SUPABASE_KEY = "your anon public key";</pre>
+      <p style="margin-bottom:0;color:var(--mute);font-size:14px">Find them in Supabase &rarr; Project Settings &rarr; API.</p>
+    </div>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <header class="top">
+    <div class="brand">RANA MOBILE<small id="whoami"></small></div>
+    <button class="iconbtn" id="gearBtn" aria-label="Settings" title="Settings">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+  <main id="view"></main>
+  <nav class="tabs" id="tabs"></nav>
+</div>
+
+<script>
+/* ====== SETUP: paste your Supabase details here ====== */
+const SUPABASE_URL = "https://qdlcjyihsljhhieelmbf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_9w5HVm0yzBbp_H2Vib94Tw_VgtbCCnI";
+/* ===================================================== */
+
+const DEFAULT_VALUE = 14220, DEFAULT_CUT = 2000;
+const CATS = {
+  Regular:{value:14220,cut:2000},
+  Large:{value:'',cut:''},
+  Source:{value:14220,cut:0},
+  Other:{value:'',cut:''}
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rs = n => 'Rs. ' + Math.round(Number(n)||0).toLocaleString('en-PK');
+const pad = n => String(n).padStart(2,'0');
+const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const monthStart = () => todayStr().slice(0,8)+'01';
+const fmtNo = s => (s||'').replace(/(\d{4})(\d{4})(\d{4})(\d?)/,'$1 $2 $3 $4').trim();
+const fmtDate = d => { const [y,m,dd]=d.split('-'); return `${dd}-${m}-${y}`; };
+
+let sb, user, tab = 'home';
+
+const ICON = {
+  home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+  add:'<path d="M12 5v14M5 12h14"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  book:'<path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h8"/>',
+  cash:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+};
+const TABS = [['home','Home'],['records','Records'],['add','Add'],['hisab','Hisab'],['cash','Cash'],['reports','Reports']];
+const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k==='records'?'list':k==='hisab'?'book':k==='reports'?'chart':k]}</svg>`;
+
+function toast(msg, bad){
+  const t=document.createElement('div'); t.className='toast'+(bad?' bad':''); t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2600);
+}
+function modal(html){
+  const m=document.createElement('div'); m.className='modal';
+  m.innerHTML=`<div class="sheet">${html}</div>`;
+  m.addEventListener('click',e=>{ if(e.target===m) m.remove(); });
+  document.body.appendChild(m); return m;
+}
+const closeModal = () => document.querySelectorAll('.modal').forEach(m=>m.remove());
+
+/* ---------- boot / auth ---------- */
+async function init(){
+  if(SUPABASE_URL.startsWith('PASTE') || SUPABASE_KEY.startsWith('PASTE')){ $('#setupView').classList.remove('hidden'); return; }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const {data:{session}} = await sb.auth.getSession();
+  if(session) startApp(session.user); else showLogin();
+  sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_OUT') showLogin(); });
+}
+function showLogin(){
+  user=null; $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden');
+}
+$('#loginBtn').onclick = async () => {
+  const email=$('#em').value.trim(), password=$('#pw').value;
+  const err=$('#loginErr'); err.classList.add('hidden');
+  if(!email||!password){ err.textContent='Enter email and password.'; err.classList.remove('hidden'); return; }
+  $('#loginBtn').disabled=true;
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
+  $('#loginBtn').disabled=false;
+  if(error){ err.textContent='Login failed. Check email and password.'; err.classList.remove('hidden'); return; }
+  startApp(data.user);
+};
+['#em','#pw'].forEach(s=>$(s).addEventListener('keydown',e=>{ if(e.key==='Enter') $('#loginBtn').click(); }));
+
+function startApp(u){
+  user=u; $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden');
+  $('#whoami').textContent=u.email;
+  $('#tabs').innerHTML=TABS.map(([k,l])=> k==='add'
+    ? `<button data-t="add" aria-label="Add card"><span class="plus">${svg('add')}</span></button>`
+    : `<button data-t="${k}">${svg(k)}<span>${l}</span></button>`).join('');
+  $('#tabs').onclick=e=>{ const b=e.target.closest('button'); if(b) go(b.dataset.t); };
+  $('#gearBtn').onclick=()=>go('settings');
+  go('home');
+}
+function go(t){
+  tab=t;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===t));
+  window.scrollTo(0,0);
+  ({home:vHome,add:vAdd,records:vRecords,hisab:vHisab,cash:vCash,reports:vReports,settings:vSettings})[t]();
+}
+
+/* ---------- data helpers ---------- */
+async function fetchRange(from,to){
+  const [c,l]=await Promise.all([
+    sb.from('cards').select('*').gte('entry_date',from).lte('entry_date',to).order('created_at',{ascending:false}).limit(5000),
+    sb.from('ledger').select('*').gte('entry_date',from).lte('entry_date',to).order('created_at',{ascending:false}).limit(5000)
+  ]);
+  if(c.error) throw c.error; if(l.error) throw l.error;
+  return {cards:c.data, ledger:l.data};
+}
+const total = (a,f)=>a.reduce((s,x)=>s+(Number(f(x))||0),0);
+function summarize(cards,ledger){
+  const value=total(cards,c=>c.card_value), cut=total(cards,c=>c.cutting);
+  const paidCut=total(cards.filter(c=>c.paid),c=>c.cutting);
+  const inc=total(ledger.filter(x=>x.kind==='income'),x=>x.amount);
+  const exp=total(ledger.filter(x=>x.kind==='expense'),x=>x.amount);
+  return {n:cards.length,value,cut,payout:value-cut,paidCut,unpaidCut:cut-paidCut,
+    paidN:cards.filter(c=>c.paid).length, doneN:cards.filter(c=>c.status==='done').length,
+    inc,exp,profit:cut+inc-exp,cash:paidCut+inc-exp};
+}
+const statusBadge = c => c.status==='done' ? '<span class="badge b-ok">Done</span>' : '<span class="badge b-wait">Pending</span>';
+const paidBadge = c => c.paid ? '<span class="badge b-ok">Paid</span>' : '<span class="badge b-bad">Unpaid</span>';
+
+function cardItem(c){
+  return `<div class="item" data-id="${c.id}">
+    <div class="between"><div><div class="no">${esc(fmtNo(c.card_no))}</div>
+      <div class="sub">${esc(c.customer_no)} &bull; ${esc(c.category)} &bull; ${fmtDate(c.entry_date)}</div></div>
+      <div class="money"><b>${rs(c.cutting)}</b><div class="sub">of ${rs(c.card_value)}</div></div></div>
+    <div style="margin-top:8px;display:flex;gap:6px">${statusBadge(c)}${paidBadge(c)}${c.proof_path?'<span class="badge b-ok">Proof</span>':'<span class="badge b-bad">No proof</span>'}</div>
+  </div>`;
+}
+function bindItems(list){
+  document.querySelectorAll('.item[data-id]').forEach(el=>{
+    el.onclick=()=>openCard(list.find(c=>c.id===el.dataset.id), ()=>go(tab));
+  });
+}
+const loading = () => { $('#view').innerHTML='<div class="empty">Loading&hellip;</div>'; };
+const fail = e => { console.error(e); toast(e.message||'Something went wrong', true); };
+
+/* ---------- Home ---------- */
+async function vHome(){
+  loading();
+  try{
+    const t=todayStr();
+    const [{cards,ledger}, pend]=await Promise.all([
+      fetchRange(t,t),
+      sb.from('cards').select('id',{count:'exact',head:true}).eq('status','pending')
+    ]);
+    const s=summarize(cards,ledger);
+    $('#view').innerHTML=`
+      <div class="hero"><div class="l">Today's cutting</div><div class="v">${rs(s.cut)}</div>
+        <div class="s">${s.n} card${s.n===1?'':'s'} today &bull; ${fmtDate(t)}</div></div>
+      <div class="grid g2" style="margin-top:12px">
+        <div class="card stat"><div class="l">Card value today</div><div class="v">${rs(s.value)}</div></div>
+        <div class="card stat"><div class="l">Customers payout</div><div class="v">${rs(s.payout)}</div></div>
+        <div class="card stat"><div class="l">Pending cards (all days)</div><div class="v">${pend.count ?? 0}</div></div>
+        <div class="card stat"><div class="l">Net today</div><div class="v">${rs(s.profit)}</div></div>
+      </div>
+      <button class="btn" style="margin-top:14px" onclick="go('add')">New card entry</button>
+      <h3>Today's entries</h3>
+      ${cards.length? cards.map(cardItem).join('') : '<div class="empty">No entries yet today.</div>'}`;
+    bindItems(cards);
+  }catch(e){ fail(e); }
+}
+
+/* ---------- Add card ---------- */
+function vAdd(){
+  $('#view').innerHTML=`
+    <h2>New card entry</h2>
+    <div class="card">
+      <label for="cardNo" style="margin-top:0">Card number (13 digits)</label>
+      <input id="cardNo" class="big" inputmode="numeric" maxlength="13" placeholder="0000000000000" autocomplete="off">
+      <div class="hint" id="cardHint"><span>Numbers only</span><span id="cnt">0/13</span></div>
+
+      <label for="custNo">Customer number</label>
+      <input id="custNo" type="tel" inputmode="numeric" maxlength="13" placeholder="03XXXXXXXXX" autocomplete="off">
+
+      <label>Category</label>
+      <div class="seg" id="catSeg">${Object.keys(CATS).map((k,i)=>`<button type="button" data-c="${k}" class="${i===0?'on':''}">${k}</button>`).join('')}</div>
+
+      <div class="row">
+        <div><label for="val">Card value (Rs.)</label><input id="val" type="number" inputmode="numeric" value="${DEFAULT_VALUE}"></div>
+        <div><label for="cut">Cutting (Rs.)</label><input id="cut" type="number" inputmode="numeric" value="${DEFAULT_CUT}"></div>
+      </div>
+      <div class="hint"><span>Customer gets</span><b id="payout" style="color:var(--gold2)"></b></div>
+
+      <div class="row">
+        <div><label for="stat">Status</label><select id="stat"><option value="pending">Pending</option><option value="done">Done</option></select></div>
+        <div><label for="paid">Payment</label><select id="paid"><option value="0">Unpaid</option><option value="1">Paid</option></select></div>
+      </div>
+
+      <label for="proof">Cash-giving proof photo</label>
+      <input id="proof" type="file" accept="image/*" capture="environment">
+      <img id="prev" class="proof hidden" alt="Proof preview">
+
+      <label for="note">Note (optional)</label>
+      <input id="note" placeholder="e.g. source name">
+
+      <button class="btn" id="saveBtn" style="margin-top:20px">Save entry</button>
+    </div>`;
+  let cat='Regular';
+  const calc=()=>{ $('#payout').textContent=rs((+$('#val').value||0)-(+$('#cut').value||0)); };
+  $('#cardNo').oninput=e=>{ e.target.value=e.target.value.replace(/\D/g,'').slice(0,13); $('#cnt').textContent=e.target.value.length+'/13';
+    $('#cardHint').classList.toggle('err', false); };
+  $('#custNo').oninput=e=>{ e.target.value=e.target.value.replace(/\D/g,'').slice(0,13); };
+  $('#catSeg').onclick=e=>{ const b=e.target.closest('button'); if(!b) return;
+    cat=b.dataset.c; document.querySelectorAll('#catSeg button').forEach(x=>x.classList.toggle('on',x===b));
+    $('#val').value=CATS[cat].value; $('#cut').value=CATS[cat].cut; calc(); };
+  $('#val').oninput=calc; $('#cut').oninput=calc; calc();
+  $('#proof').onchange=e=>{ const f=e.target.files[0]; const p=$('#prev');
+    if(f){ p.src=URL.createObjectURL(f); p.classList.remove('hidden'); } else p.classList.add('hidden'); };
+  $('#saveBtn').onclick=()=>saveCard(cat);
+}
+
+function compress(file){
+  return new Promise((res,rej)=>{
+    const img=new Image(), u=URL.createObjectURL(file);
+    img.onload=()=>{ const s=Math.min(1,1280/Math.max(img.width,img.height));
+      const c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b=>{ URL.revokeObjectURL(u); b?res(b):rej(new Error('Could not read photo')); },'image/jpeg',.72); };
+    img.onerror=()=>rej(new Error('Could not read photo')); img.src=u;
+  });
+}
+
+async function saveCard(cat){
+  const card_no=$('#cardNo').value, customer_no=$('#custNo').value;
+  const card_value=+$('#val').value, cutting=+$('#cut').value;
+  const file=$('#proof').files[0];
+  if(!/^\d{13}$/.test(card_no)){ $('#cardHint').classList.add('err'); return toast('Card number must be exactly 13 digits',true); }
+  if(customer_no.length<10) return toast('Enter the customer number',true);
+  if(!(card_value>0)) return toast('Enter the card value',true);
+  if(!(cutting>=0) || cutting>card_value) return toast('Check the cutting amount',true);
+  if(!file) return toast('Add the cash-giving proof photo',true);
+  const btn=$('#saveBtn'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    const dup=await sb.from('cards').select('entry_date').eq('card_no',card_no).limit(1);
+    if(dup.data && dup.data.length && !confirm(`This card number was already entered on ${fmtDate(dup.data[0].entry_date)}. Save again?`)){
+      btn.disabled=false; btn.textContent='Save entry'; return; }
+    const blob=await compress(file);
+    const path=`${user.id}/${Date.now()}.jpg`;
+    const up=await sb.storage.from('proofs').upload(path,blob,{contentType:'image/jpeg'});
+    if(up.error) throw up.error;
+    const ins=await sb.from('cards').insert({
+      card_no,customer_no,category:cat,card_value,cutting,
+      status:$('#stat').value, paid:$('#paid').value==='1',
+      proof_path:path, note:$('#note').value.trim()||null,
+      entry_date:todayStr(), created_by_email:user.email });
+    if(ins.error){ await sb.storage.from('proofs').remove([path]); throw ins.error; }
+    toast('Entry saved'); go('home');
+  }catch(e){ fail(e); btn.disabled=false; btn.textContent='Save entry'; }
+}
+
+/* ---------- Card detail ---------- */
+async function openCard(c,done){
+  if(!c) return;
+  const m=modal(`
+    <div class="between"><h2 style="margin:0">${esc(fmtNo(c.card_no))}</h2><button class="iconbtn" id="xc" aria-label="Close">&times;</button></div>
+    <p style="color:var(--mute);margin:6px 0 12px">${esc(c.customer_no)} &bull; ${esc(c.category)} &bull; ${fmtDate(c.entry_date)}${c.created_by_email?' &bull; '+esc(c.created_by_email):''}</p>
+    <div class="grid g2">
+      <div class="card stat"><div class="l">Card value</div><div class="v">${rs(c.card_value)}</div></div>
+      <div class="card stat"><div class="l">Cutting</div><div class="v">${rs(c.cutting)}</div></div>
+    </div>
+    ${c.note?`<p>${esc(c.note)}</p>`:''}
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" id="tStat">${c.status==='done'?'Mark pending':'Mark done'}</button>
+      <button class="btn ghost" id="tPaid">${c.paid?'Mark unpaid':'Mark paid'}</button>
+    </div>
+    <div id="pf" style="margin-top:8px"></div>
+    <button class="btn bad" id="del" style="margin-top:14px">Delete entry</button>`);
+  $('#xc').onclick=()=>m.remove();
+  const upd=async patch=>{ const r=await sb.from('cards').update(patch).eq('id',c.id); if(r.error) return fail(r.error); m.remove(); toast('Updated'); done&&done(); };
+  m.querySelector('#tStat').onclick=()=>upd({status:c.status==='done'?'pending':'done'});
+  m.querySelector('#tPaid').onclick=()=>upd({paid:!c.paid});
+  m.querySelector('#del').onclick=async()=>{
+    if(!confirm('Delete this entry? This cannot be undone.')) return;
+    if(c.proof_path) await sb.storage.from('proofs').remove([c.proof_path]);
+    const r=await sb.from('cards').delete().eq('id',c.id); if(r.error) return fail(r.error);
+    m.remove(); toast('Deleted'); done&&done(); };
+  if(c.proof_path){
+    const r=await sb.storage.from('proofs').createSignedUrl(c.proof_path,600);
+    if(r.data) m.querySelector('#pf').innerHTML=`<div style="color:var(--mute);font-size:13px">Cash-giving proof</div><img class="proof" src="${r.data.signedUrl}" alt="Proof photo">`;
+  }else m.querySelector('#pf').innerHTML='<div class="empty" style="padding:14px">No proof photo</div>';
+}
+
+/* ---------- Records ---------- */
+let rq='', rf='all';
+async function vRecords(){
+  $('#view').innerHTML=`<h2>Card records</h2>
+    <input id="q" placeholder="Search card or customer number" inputmode="numeric" value="${esc(rq)}">
+    <div class="seg" style="margin:10px 0 14px" id="flt">
+      ${[['all','All'],['pending','Pending'],['unpaid','Unpaid'],['done','Done']].map(([k,l])=>`<button data-f="${k}" class="${rf===k?'on':''}">${l}</button>`).join('')}</div>
+    <div id="rl"></div>`;
+  let timer; $('#q').oninput=e=>{ rq=e.target.value.replace(/\D/g,''); clearTimeout(timer); timer=setTimeout(loadList,300); };
+  $('#flt').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; rf=b.dataset.f;
+    document.querySelectorAll('#flt button').forEach(x=>x.classList.toggle('on',x===b)); loadList(); };
+  loadList();
+}
+async function loadList(){
+  const box=$('#rl'); box.innerHTML='<div class="empty">Loading…</div>';
+  let q=sb.from('cards').select('*').order('created_at',{ascending:false}).limit(200);
+  if(rq) q=q.or(`card_no.ilike.%${rq}%,customer_no.ilike.%${rq}%`);
+  if(rf==='pending') q=q.eq('status','pending');
+  if(rf==='done') q=q.eq('status','done');
+  if(rf==='unpaid') q=q.eq('paid',false);
+  const {data,error}=await q; if(error) return fail(error);
+  box.innerHTML=data.length?data.map(cardItem).join(''):'<div class="empty">No cards found.</div>';
+  document.querySelectorAll('.item[data-id]').forEach(el=>{ el.onclick=()=>openCard(data.find(c=>c.id===el.dataset.id),loadList); });
+}
+
+/* ---------- Daily hisab ---------- */
+let hDate=todayStr();
+async function vHisab(){
+  $('#view').innerHTML=`<div class="printhead">RANA MOBILE &mdash; Daily Hisab</div><h2 class="noprint">Daily hisab</h2>
+    <div class="row noprint"><input type="date" id="hd" value="${hDate}"><button class="btn sm ghost" id="pr" style="flex:0 0 auto">Print / PDF</button></div>
+    <div id="hb" style="margin-top:14px"></div>`;
+  $('#hd').onchange=e=>{ hDate=e.target.value||todayStr(); loadHisab(); };
+  $('#pr').onclick=()=>window.print();
+  loadHisab();
+}
+async function loadHisab(){
+  const box=$('#hb'); box.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const {cards,ledger}=await fetchRange(hDate,hDate); const s=summarize(cards,ledger);
+    box.innerHTML=`
+      <div class="hero"><div class="l">Cutting on ${fmtDate(hDate)}</div><div class="v">${rs(s.cut)}</div><div class="s">${s.n} card${s.n===1?'':'s'}</div></div>
+      <div class="card" style="margin-top:12px"><table>
+        <tr><td>Total card value</td><td class="n">${rs(s.value)}</td></tr>
+        <tr><td>Cutting (profit)</td><td class="n">${rs(s.cut)}</td></tr>
+        <tr><td>Customers payout</td><td class="n">${rs(s.payout)}</td></tr>
+        <tr><td>Cards paid / done</td><td class="n">${s.paidN} / ${s.doneN}</td></tr>
+        <tr><td>Cutting received (paid cards)</td><td class="n">${rs(s.paidCut)}</td></tr>
+        <tr><td>Cutting still unpaid</td><td class="n">${rs(s.unpaidCut)}</td></tr>
+        <tr><td>Other income</td><td class="n">${rs(s.inc)}</td></tr>
+        <tr><td>Expenses</td><td class="n">${rs(s.exp)}</td></tr>
+        <tr><td><b>Net profit</b></td><td class="n"><b>${rs(s.profit)}</b></td></tr>
+        <tr><td><b>Cash in hand (day)</b></td><td class="n"><b>${rs(s.cash)}</b></td></tr></table></div>
+      <h3>Entries</h3>${cards.length?cards.map(cardItem).join(''):'<div class="empty">No entries on this date.</div>'}
+      ${ledger.length?`<h3>Income &amp; expenses</h3><div class="card"><table>${ledger.map(x=>`<tr><td>${esc(x.title)}</td><td class="n" style="color:${x.kind==='income'?'var(--ok)':'var(--bad)'}">${x.kind==='income'?'+':'−'}${rs(x.amount)}</td></tr>`).join('')}</table></div>`:''}`;
+    document.querySelectorAll('.item[data-id]').forEach(el=>{ el.onclick=()=>openCard(cards.find(c=>c.id===el.dataset.id),loadHisab); });
+  }catch(e){ fail(e); }
+}
+
+/* ---------- Cash / income & expenses ---------- */
+async function vCash(){
+  $('#view').innerHTML=`<h2>Cash &amp; expenses</h2>
+    <div class="card">
+      <div class="seg" id="kseg"><button data-k="expense" class="on">Expense</button><button data-k="income">Income</button></div>
+      <label for="lt">Title</label><input id="lt" placeholder="e.g. Tea, rent, extra income">
+      <label for="la">Amount (Rs.)</label><input id="la" type="number" inputmode="numeric">
+      <button class="btn" id="ls" style="margin-top:16px">Add entry</button>
+    </div><div id="cl" style="margin-top:6px"></div>`;
+  let kind='expense';
+  $('#kseg').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; kind=b.dataset.k;
+    document.querySelectorAll('#kseg button').forEach(x=>x.classList.toggle('on',x===b)); };
+  $('#ls').onclick=async()=>{
+    const title=$('#lt').value.trim(), amount=+$('#la').value;
+    if(!title||!(amount>0)) return toast('Enter title and amount',true);
+    const r=await sb.from('ledger').insert({kind,title,amount,entry_date:todayStr()});
+    if(r.error) return fail(r.error); toast('Added'); vCash(); };
+  loadCash();
+}
+async function loadCash(){
+  try{
+    const {cards,ledger}=await fetchRange(monthStart(),todayStr()); const s=summarize(cards,ledger);
+    $('#cl').innerHTML=`
+      <h3>This month</h3>
+      <div class="grid g2">
+        <div class="card stat"><div class="l">Cutting received (paid)</div><div class="v">${rs(s.paidCut)}</div></div>
+        <div class="card stat"><div class="l">Other income</div><div class="v">${rs(s.inc)}</div></div>
+        <div class="card stat"><div class="l">Expenses</div><div class="v">${rs(s.exp)}</div></div>
+        <div class="card stat"><div class="l">Cash in hand</div><div class="v" style="color:var(--gold)">${rs(s.cash)}</div></div>
+      </div>
+      <h3>Entries</h3>
+      ${ledger.length?ledger.map(x=>`<div class="item" style="cursor:default"><div class="between"><div><div class="no" style="font-size:15px">${esc(x.title)}</div><div class="sub">${fmtDate(x.entry_date)}</div></div>
+        <div class="row" style="flex:0 0 auto"><b style="color:${x.kind==='income'?'var(--ok)':'var(--bad)'}">${x.kind==='income'?'+':'−'}${rs(x.amount)}</b>
+        <button class="iconbtn" data-del="${x.id}" aria-label="Delete">&times;</button></div></div></div>`).join(''):'<div class="empty">No income or expense entries this month.</div>'}`;
+    document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+      if(!confirm('Delete this entry?')) return;
+      const r=await sb.from('ledger').delete().eq('id',b.dataset.del); if(r.error) return fail(r.error); loadCash(); });
+  }catch(e){ fail(e); }
+}
+
+/* ---------- Reports ---------- */
+let rFrom=monthStart(), rTo=todayStr(), rData=null;
+function vReports(){
+  $('#view').innerHTML=`<div class="printhead">RANA MOBILE &mdash; Report</div><h2 class="noprint">Reports</h2>
+    <div class="row noprint"><div><label for="rf" style="margin-top:0">From</label><input type="date" id="rf" value="${rFrom}"></div>
+      <div><label for="rt" style="margin-top:0">To</label><input type="date" id="rt" value="${rTo}"></div></div>
+    <div class="row noprint" style="margin-top:12px"><button class="btn" id="rg">Show report</button></div>
+    <div id="rb" style="margin-top:14px"></div>`;
+  $('#rg').onclick=()=>{ rFrom=$('#rf').value; rTo=$('#rt').value; runReport(); };
+  runReport();
+}
+async function runReport(){
+  const box=$('#rb'); box.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    rData=await fetchRange(rFrom,rTo); const {cards,ledger}=rData; const s=summarize(cards,ledger);
+    box.innerHTML=`
+      <div class="hero"><div class="l">${fmtDate(rFrom)} to ${fmtDate(rTo)}</div><div class="v">${rs(s.cut)}</div><div class="s">Total cutting &bull; ${s.n} cards</div></div>
+      <div class="card" style="margin-top:12px"><table>
+        <tr><td>Total card value</td><td class="n">${rs(s.value)}</td></tr>
+        <tr><td>Customers payout</td><td class="n">${rs(s.payout)}</td></tr>
+        <tr><td>Cutting received (paid)</td><td class="n">${rs(s.paidCut)}</td></tr>
+        <tr><td>Cutting unpaid</td><td class="n">${rs(s.unpaidCut)}</td></tr>
+        <tr><td>Other income</td><td class="n">${rs(s.inc)}</td></tr>
+        <tr><td>Expenses</td><td class="n">${rs(s.exp)}</td></tr>
+        <tr><td><b>Net profit</b></td><td class="n"><b>${rs(s.profit)}</b></td></tr></table></div>
+      <div class="row noprint" style="margin-top:12px"><button class="btn ghost" id="csv">Export Excel (CSV)</button><button class="btn ghost" id="pdf">Print / PDF</button></div>
+      <h3>Cards</h3>
+      <div class="card scroll"><table><tr><th>Date</th><th>Card</th><th>Customer</th><th>Type</th><th class="n">Value</th><th class="n">Cutting</th><th>Status</th><th>Paid</th></tr>
+      ${cards.map(c=>`<tr><td>${fmtDate(c.entry_date)}</td><td>${esc(c.card_no)}</td><td>${esc(c.customer_no)}</td><td>${esc(c.category)}</td><td class="n">${Math.round(c.card_value)}</td><td class="n">${Math.round(c.cutting)}</td><td>${c.status}</td><td>${c.paid?'Yes':'No'}</td></tr>`).join('')||'<tr><td colspan="8">No cards in this range.</td></tr>'}</table></div>`;
+    $('#csv').onclick=exportCSV; $('#pdf').onclick=()=>window.print();
+  }catch(e){ fail(e); }
+}
+function download(name,text,type){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type}));
+  a.download=name; document.body.appendChild(a); a.click(); a.remove();
+}
+const csvCell = v => '"'+String(v??'').replace(/"/g,'""')+'"';
+function exportCSV(){
+  if(!rData) return;
+  const head=['Date','Card number','Customer number','Category','Card value','Cutting','Status','Paid','Note'];
+  const rows=rData.cards.map(c=>[c.entry_date,c.card_no,c.customer_no,c.category,c.card_value,c.cutting,c.status,c.paid?'Yes':'No',c.note||'']);
+  const lrows=rData.ledger.map(x=>[x.entry_date,'','',x.kind,x.kind==='income'?x.amount:-x.amount,'','','',x.title]);
+  const csv='\uFEFF'+[head,...rows,...lrows].map(r=>r.map(csvCell).join(',')).join('\r\n');
+  download(`rana-mobile-${rFrom}_to_${rTo}.csv`,csv,'text/csv;charset=utf-8');
+}
+
+/* ---------- Settings / backup ---------- */
+function vSettings(){
+  $('#view').innerHTML=`<h2>Settings &amp; backup</h2>
+    <div class="card"><div style="color:var(--mute);font-size:13px">Logged in as</div><div style="font-weight:700">${esc(user.email)}</div></div>
+    <h3>Backup</h3>
+    <div class="card">
+      <p style="margin-top:0;color:var(--mute);font-size:14px">Download all entries as a file you can keep safe. Proof photos stay in Supabase.</p>
+      <button class="btn ghost" id="bk">Download backup (JSON)</button>
+      <label for="rs" style="margin-top:18px">Restore from backup file</label>
+      <input id="rs" type="file" accept="application/json,.json">
+    </div>
+    <button class="btn bad" id="lo" style="margin-top:22px">Log out</button>`;
+  $('#lo').onclick=async()=>{ await sb.auth.signOut(); };
+  $('#bk').onclick=async()=>{
+    try{
+      const [c,l]=await Promise.all([sb.from('cards').select('*').order('created_at').limit(50000), sb.from('ledger').select('*').order('created_at').limit(50000)]);
+      if(c.error) throw c.error; if(l.error) throw l.error;
+      download(`rana-mobile-backup-${todayStr()}.json`,JSON.stringify({app:'RANA MOBILE',date:todayStr(),cards:c.data,ledger:l.data},null,1),'application/json');
+    }catch(e){ fail(e); } };
+  $('#rs').onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{
+      const j=JSON.parse(await f.text());
+      if(!Array.isArray(j.cards)||!Array.isArray(j.ledger)) throw new Error('This is not a RANA MOBILE backup');
+      if(!confirm(`Add ${j.cards.length} cards and ${j.ledger.length} ledger entries from this backup?`)) return;
+      const strip=r=>{ const {id,created_by,...rest}=r; return rest; };
+      for(let i=0;i<j.cards.length;i+=200){ const r=await sb.from('cards').insert(j.cards.slice(i,i+200).map(strip)); if(r.error) throw r.error; }
+      for(let i=0;i<j.ledger.length;i+=200){ const r=await sb.from('ledger').insert(j.ledger.slice(i,i+200).map(strip)); if(r.error) throw r.error; }
+      toast('Backup restored');
+    }catch(err){ fail(err); }
+    e.target.value=''; };
+}
+
+init();
+</script>
+</body>
+</html>
