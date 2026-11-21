@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1114">
+<title>RANA MOBILE</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cdefs%3E%3ClinearGradient id=%27g%27 x1=%270%27 y1=%270%27 x2=%271%27 y2=%271%27%3E%3Cstop offset=%270%27 stop-color=%27%23f2d98f%27/%3E%3Cstop offset=%271%27 stop-color=%27%23a9802f%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23151209%27/%3E%3Crect x=%272%27 y=%272%27 width=%2760%27 height=%2760%27 rx=%2714%27 fill=%27none%27 stroke=%27url(%23g)%27 stroke-width=%273%27/%3E%3Ctext x=%2732%27 y=%2743%27 font-family=%27Arial,sans-serif%27 font-weight=%27800%27 font-size=%2728%27 text-anchor=%27middle%27 fill=%27url(%23g)%27%3ERM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{
+  --bg:#0f1114; --bg2:#14171b; --panel:#1a1d22; --panel2:#21252b; --line:#2b3037; --line2:#3a414b;
+  --gold:#d9b25f; --gold-hi:#f2d98f; --gold-lo:#a9802f;
+  --goldgrad:linear-gradient(135deg,#f2d98f 0%,#d9b25f 45%,#a9802f 100%);
+  --text:#f0ece3; --mute:#9a9a94; --ok:#5fc08a; --bad:#e5786a; --warn:#e6b85c;
+  --r:16px; --ease:cubic-bezier(.2,.7,.2,1); --spring:cubic-bezier(.32,1.25,.4,1);
+  --display:'Sora','Segoe UI',system-ui,sans-serif;
+  --body:'Manrope','Segoe UI',system-ui,sans-serif;
+  --urdu:'Noto Naskh Arabic','Segoe UI',serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+body{padding-bottom:calc(92px + env(safe-area-inset-bottom));min-height:100vh;overflow-x:hidden}
+.hidden{display:none!important}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ur{font-family:var(--urdu);direction:rtl;unicode-bidi:isolate;font-weight:400;color:var(--mute);font-size:.86em;line-height:1.6}
+.cnt,.tnum,table,.big{font-variant-numeric:tabular-nums}
+/* Urdu is shown only in page titles, login subtitle and the footer line */
+.ur{display:none!important}
+h2>.ur{display:inline!important}
+.madeby .ur,.login p.t .ur{display:block!important}
+nav.tabs button .lbl em{display:none}
+
+/* ambient light */
+.ambient{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(1200px 700px at 50% -10%,#1b1f25 0%,var(--bg) 60%)}
+.ambient i{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.14;animation:drift 22s ease-in-out infinite alternate}
+.ambient i:nth-child(1){background:#d9b25f;left:-25vmax;top:-20vmax}
+.ambient i:nth-child(2){background:#3a5a8a;right:-30vmax;bottom:-25vmax;animation-duration:28s;opacity:.10}
+@keyframes drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(6vmax,5vmax,0) scale(1.12)}}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;background:rgba(15,17,20,.78);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
+.brand{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:1.4px;background:var(--goldgrad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand small{display:block;font-family:var(--body);font-weight:600;font-size:11px;letter-spacing:.3px;color:var(--mute);-webkit-text-fill-color:var(--mute)}
+.iconbtn{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:12px;width:42px;height:42px;display:grid;place-items:center;cursor:pointer;transition:transform .15s var(--ease),border-color .2s}
+.iconbtn:active{transform:scale(.92)}
+.iconbtn:hover{border-color:var(--line2)}
+main{max-width:780px;margin:0 auto;padding:18px 16px 8px}
+h2{font-family:var(--display);font-size:22px;margin:4px 0 16px;font-weight:700;letter-spacing:.2px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+h2 .ur{font-size:18px}
+h3{font-family:var(--display);font-size:13px;margin:26px 0 12px;font-weight:700;color:var(--gold-hi);letter-spacing:1.2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+h3 .ur{text-transform:none;letter-spacing:0;font-size:14px}
+
+/* made by */
+.madeby{margin:34px 0 6px;text-align:center;color:var(--mute);font-size:12px;letter-spacing:.4px}
+.madeby b{background:var(--goldgrad);-webkit-background-clip:text;background-clip:text;color:transparent;font-family:var(--display)}
+.madeby .ur{display:block;font-size:13px}
+
+/* nav */
+nav.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));width:min(560px,calc(100% - 20px));z-index:30;
+  background:rgba(26,29,34,.88);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid var(--line2);border-radius:22px;display:flex;justify-content:space-around;padding:7px 4px;
+  box-shadow:0 14px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+nav.tabs button{flex:1;background:none;border:0;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;cursor:pointer;min-width:0;transition:color .2s,transform .25s var(--spring)}
+nav.tabs button svg{width:22px;height:22px;transition:transform .3s var(--spring)}
+nav.tabs button .lbl{display:flex;flex-direction:column;align-items:center;line-height:1.15}
+nav.tabs button .lbl b{font-size:10.5px;font-weight:700}
+nav.tabs button .lbl em{font-style:normal;font-family:var(--urdu);font-size:10px;opacity:.8}
+nav.tabs button.on{color:var(--gold-hi)}
+nav.tabs button.on svg{transform:translateY(-2px) scale(1.12)}
+nav.tabs button.on::after{content:"";width:18px;height:3px;border-radius:3px;background:var(--goldgrad);margin-top:1px;animation:grow .35s var(--spring)}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+nav.tabs .plus{color:#17140c;background:var(--goldgrad);border-radius:50%;width:50px;height:50px;display:grid;place-items:center;margin-top:-26px;border:4px solid #14171b;
+  box-shadow:0 8px 22px rgba(217,178,95,.38),inset 0 1px 0 rgba(255,255,255,.5);transition:transform .25s var(--spring)}
+nav.tabs button:active .plus{transform:scale(.9)}
+nav.tabs .plus svg{width:24px;height:24px}
+nav.tabs button.on .plus svg{transform:none}
+nav.tabs button[data-t=add].on::after{display:none}
+
+/* surfaces */
+.card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0)),var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 10px 28px rgba(0,0,0,.28)}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}
+.stat .l{color:var(--mute);font-size:12.5px;font-weight:600;display:flex;flex-direction:column;gap:0}
+.stat .v{font-family:var(--display);font-size:21px;font-weight:700;margin-top:6px}
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:22px 20px;border:1px solid #5a4a22;
+  background:radial-gradient(140% 120% at 0% 0%,#3a2f14 0%,#1d1a12 45%,#15171a 100%);
+  box-shadow:0 18px 44px rgba(0,0,0,.5),inset 0 1px 0 rgba(242,217,143,.25)}
+.hero::after{content:"";position:absolute;inset:-40% -60%;background:linear-gradient(105deg,transparent 42%,rgba(242,217,143,.13) 50%,transparent 58%);transform:translateX(-60%);animation:sheen 6.5s ease-in-out infinite}
+@keyframes sheen{0%,55%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+.hero .l{color:var(--gold-hi);font-size:13px;font-weight:700;letter-spacing:.6px;display:flex;justify-content:space-between;align-items:baseline}
+.hero .l .ur{color:#cdb77c}
+.hero .v{font-family:var(--display);font-weight:800;font-size:42px;line-height:1.1;margin:8px 0 10px;background:var(--goldgrad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .s{color:#aaa38f;font-size:13px;position:relative;z-index:1}
+
+label{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--mute);margin:16px 0 7px;font-weight:700;letter-spacing:.3px}
+input,select,textarea{width:100%;background:#0d0f12;border:1px solid var(--line);border-radius:13px;padding:13px 14px;min-height:50px;transition:border-color .2s,box-shadow .25s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 4px rgba(217,178,95,.14)}
+input[type=file]{padding:11px 12px;font-size:14px}
+.big{font-family:var(--display);font-size:22px;letter-spacing:2.5px;font-weight:700}
+.hint{font-size:12px;color:var(--mute);margin-top:6px;display:flex;justify-content:space-between}
+.hint.err{color:var(--bad);animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.btn{position:relative;overflow:hidden;background:var(--goldgrad);color:#1a1405;border:0;border-radius:14px;padding:13px 18px;font-weight:800;cursor:pointer;width:100%;min-height:52px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2;
+  box-shadow:0 8px 20px rgba(217,178,95,.22),inset 0 1px 0 rgba(255,255,255,.45);transition:transform .15s var(--ease),box-shadow .2s,filter .2s}
+.btn .ur{color:rgba(26,20,5,.78);font-size:12.5px;font-weight:600}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:scale(.975)}
+.btn:disabled{opacity:.55;filter:grayscale(.3)}
+.btn.ghost{background:linear-gradient(180deg,var(--panel2),var(--panel));color:var(--text);border:1px solid var(--line2);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.btn.ghost .ur{color:var(--mute)}
+.btn.bad{background:transparent;color:var(--bad);border:1px solid #6a3329;box-shadow:none}
+.btn.bad .ur{color:#c9867b}
+.btn.sm{width:auto;min-height:42px;padding:8px 14px;font-size:14px}
+.row{display:flex;gap:10px;align-items:center}
+.row>*{flex:1}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.badge{display:inline-flex;gap:5px;align-items:center;padding:3px 10px;border-radius:99px;font-size:11.5px;font-weight:700;border:1px solid}
+.badge .ur{font-size:11px;color:inherit;opacity:.85}
+.b-ok{color:var(--ok);border-color:#2c5c43;background:#15261d}
+.b-wait{color:var(--warn);border-color:#6a5524;background:#2a2316}
+.b-bad{color:var(--bad);border-color:#6a3329;background:#2b1b18}
+.b-gold{color:var(--gold-hi);border-color:#6a5524;background:#2a2316}
+.item{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px;cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.22);transition:transform .2s var(--ease),border-color .2s,box-shadow .2s;animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0)*45ms)}
+.item:active{transform:scale(.985)}
+@media(hover:hover){.item:hover{border-color:#5a4a22;transform:translateY(-2px);box-shadow:0 14px 30px rgba(0,0,0,.35)}}
+.item .no{font-family:var(--display);font-weight:700;font-size:16.5px;letter-spacing:1.2px}
+.item .sub{color:var(--mute);font-size:12.5px;margin-top:2px}
+.item .money{text-align:right}
+.item .money b{font-family:var(--display);font-size:17px;background:var(--goldgrad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.empty{text-align:center;color:var(--mute);padding:38px 10px;border:1px dashed var(--line2);border-radius:var(--r)}
+.seg{display:flex;background:#0d0f12;border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;position:relative;background:none;border:0;border-radius:10px;padding:10px 6px;color:var(--mute);font-weight:700;cursor:pointer;transition:background .25s,color .25s,transform .15s;display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.seg button .ur{font-size:11.5px;color:inherit;opacity:.8}
+.seg button.on{background:var(--goldgrad);color:#1a1405;box-shadow:0 4px 12px rgba(217,178,95,.25)}
+.seg button:active{transform:scale(.96)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+th{color:var(--mute);font-weight:700;font-size:11.5px;letter-spacing:.5px}
+td.n,th.n{text-align:right}
+td.c,th.c{text-align:center}
+.scroll{overflow-x:auto}
+.proof{width:100%;border-radius:14px;border:1px solid var(--line);margin-top:8px;max-height:60vh;object-fit:contain;background:#000;animation:rise .4s var(--ease) both}
+
+/* skeleton */
+.skel{height:78px;border-radius:var(--r);margin-bottom:10px;border:1px solid var(--line);background:linear-gradient(100deg,var(--panel) 30%,#262a31 50%,var(--panel) 70%);background-size:220% 100%;animation:shimmer 1.2s linear infinite}
+.skel.h{height:128px;border-radius:22px}
+@keyframes shimmer{from{background-position:120% 0}to{background-position:-120% 0}}
+
+/* entrance */
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+#view>*{animation:rise .55s var(--ease) both;animation-delay:calc(var(--i,0)*60ms)}
+
+/* modal / toast / success */
+.modal{position:fixed;inset:0;background:rgba(5,6,8,.7);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .22s both}
+.modal.leaving{animation:fadeout .2s both}.modal.leaving .sheet{animation:sheetout .2s both}
+.sheet{background:linear-gradient(180deg,#20242a,var(--panel));border-radius:24px 24px 0 0;width:100%;max-width:780px;max-height:92vh;overflow:auto;padding:12px 18px;padding-bottom:calc(20px + env(safe-area-inset-bottom));border:1px solid var(--line2);border-bottom:0;
+  box-shadow:0 -20px 60px rgba(0,0,0,.6);animation:sheetin .38s var(--spring) both}
+.grab{width:42px;height:4px;border-radius:4px;background:var(--line2);margin:0 auto 14px}
+@media(min-width:780px){.modal{align-items:center}.sheet{border-radius:24px;border-bottom:1px solid var(--line2)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes fadeout{to{opacity:0}}
+@keyframes sheetin{from{transform:translateY(60px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+@keyframes sheetout{to{transform:translateY(50px);opacity:0}}
+.toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--goldgrad);color:#1a1405;padding:11px 18px;border-radius:14px;font-weight:800;z-index:90;max-width:90vw;text-align:center;
+  box-shadow:0 12px 30px rgba(0,0,0,.5);animation:toastin .4s var(--spring) both;display:flex;flex-direction:column;line-height:1.3}
+.toast .ur{color:rgba(26,20,5,.8);font-size:12.5px}
+.toast.bad{background:linear-gradient(135deg,#f0907f,#c9584a);color:#fff}.toast.bad .ur{color:#ffe3de}
+.toast.out{animation:toastout .3s both}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,24px) scale(.92)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes toastout{to{opacity:0;transform:translate(-50%,16px)}}
+.success{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(8,9,11,.72);backdrop-filter:blur(6px);animation:fade .2s both}
+.success.out{animation:fadeout .3s both}
+.success .okb{display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--display);font-weight:700;animation:pop .5s var(--spring) both}
+.success .okb .ur{font-family:var(--urdu)}
+.success svg{width:96px;height:96px;filter:drop-shadow(0 10px 24px rgba(217,178,95,.35))}
+.success circle{fill:rgba(217,178,95,.1);stroke:url(#gg);stroke-width:3;stroke-dasharray:151;stroke-dashoffset:151;animation:draw .6s .05s ease-out forwards}
+.success path{fill:none;stroke:var(--gold-hi);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .4s .5s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.28);transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+
+/* login */
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login .box{width:100%;max-width:400px}
+.logo{font-family:var(--display);font-weight:800;font-size:36px;text-align:center;letter-spacing:2px;background:linear-gradient(100deg,#a9802f 10%,#f2d98f 30%,#d9b25f 50%,#f2d98f 70%,#a9802f 90%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:logoShine 5s linear infinite}
+@keyframes logoShine{to{background-position:-250% 0}}
+.login p.t{text-align:center;color:var(--mute);margin:6px 0 20px}
+.login p.t .ur{display:block}
+.rmwrap{perspective:900px;display:grid;place-items:center;margin:4px auto 18px;animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-7px)}}
+.rm{position:relative;overflow:hidden;width:116px;height:116px;border-radius:32px;display:grid;place-items:center;border:3px solid transparent;
+  background:linear-gradient(160deg,#241d0c,#0f1114 70%) padding-box,var(--goldgrad) border-box;
+  box-shadow:0 22px 46px rgba(0,0,0,.55),0 0 0 1px rgba(242,217,143,.12),0 0 40px rgba(217,178,95,.22);
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .18s ease-out}
+.rm span{font-family:var(--display);font-weight:800;font-size:48px;letter-spacing:-1px;line-height:1;background:var(--goldgrad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.rm::after{content:"";position:absolute;inset:-30% -60%;background:linear-gradient(105deg,transparent 42%,rgba(242,217,143,.28) 50%,transparent 58%);transform:translateX(-60%);animation:sheen 5s ease-in-out infinite}
+.rm.sm{width:40px;height:40px;border-radius:12px;border-width:2px;box-shadow:0 6px 14px rgba(0,0,0,.4)}
+.rm.sm span{font-size:17px}
+.rm.sm::after{animation-duration:7s}
+pre{background:#0d0f12;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:13px}
+.perm td,.perm th{font-size:13px}
+.yes{color:var(--ok);font-weight:800}.no{color:var(--bad);font-weight:800}
+.printhead,.printfoot{display:none}
+
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  .ambient,header.top,nav.tabs,.noprint,.toast{display:none!important}
+  *{animation:none!important;box-shadow:none!important;backdrop-filter:none!important}
+  #view>*,.item{opacity:1!important;transform:none!important}
+  .card,.item,.hero{background:#fff!important;border:1px solid #bbb!important;color:#000!important}
+  .hero::after{display:none}
+  .hero .v,.item .money b,.brand,.madeby b{background:none!important;-webkit-text-fill-color:#000!important;color:#000!important}
+  h3{color:#000!important}th,td{color:#000;border-color:#ccc}
+  .stat .l,.item .sub,.hero .l,.hero .s,.ur,.madeby{color:#444!important}
+  .printhead{display:block!important;font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:8px}
+  .printfoot{display:block!important;text-align:center;color:#444;font-size:12px;margin-top:16px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="ambient"><i></i><i></i></div>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2d98f"/><stop offset="1" stop-color="#a9802f"/></linearGradient></defs></svg>
+
+<!-- LOGIN -->
+<div id="loginView" class="login hidden">
+  <div class="box">
+    <div class="rmwrap"><div class="rm" id="c3d"><span>RM</span></div></div>
+    <div class="logo">RANA MOBILE</div>
+    <p class="t"><span>Daily hisab &mdash; secure login</span><span class="ur">روزانہ حساب &mdash; محفوظ لاگ اِن</span></p>
+    <div class="card">
+      <label for="em" style="margin-top:0"><span>Email</span><span class="ur">ای میل</span></label>
+      <input id="em" type="email" autocomplete="username" placeholder="name@example.com">
+      <label for="pw"><span>Password</span><span class="ur">پاس ورڈ</span></label>
+      <input id="pw" type="password" autocomplete="current-password" placeholder="Password">
+      <div id="loginErr" class="hint err hidden" style="margin:12px 0"></div>
+      <button class="btn" id="loginBtn" style="margin-top:20px"><span>Log in</span><span class="ur">لاگ اِن</span></button>
+    </div>
+    <p class="t" style="margin-top:18px;font-size:13px"><span>Access is by invitation only.</span><span class="ur">رسائی صرف دعوت پر ہے۔</span></p>
+    <div class="madeby"><b>Made by Developer</b><span class="ur">ڈویلپر کی طرف سے تیار کردہ</span></div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div id="setupView" class="login hidden">
+  <div class="box" style="max-width:560px">
+    <div class="logo">RANA MOBILE</div>
+    <p class="t">One-time setup needed</p>
+    <div class="card">
+      <p style="margin-top:0">Open <b>index.html</b> in a text editor and fill in these two lines near the top of the script:</p>
+      <pre>const SUPABASE_URL = "https://xxxx.supabase.co";
+const SUPABASE_KEY = "your publishable key";</pre>
+    </div>
+    <div class="madeby"><b>Made by Developer</b><span class="ur">ڈویلپر کی طرف سے تیار کردہ</span></div>
+  </div>
+</div>
+
+<!-- NO ACCESS -->
+<div id="noAccessView" class="login hidden">
+  <div class="box">
+    <div class="logo">RANA MOBILE</div>
+    <div class="card" style="margin-top:20px;text-align:center">
+      <h2 style="justify-content:center;flex-direction:column;align-items:center;margin-bottom:6px"><span>No access yet</span><span class="ur">ابھی رسائی نہیں</span></h2>
+      <p style="color:var(--mute);margin:0 0 16px">This account is not approved. Ask the admin to give you access.<br><span class="ur">اس اکاؤنٹ کو اجازت نہیں ملی۔ ایڈمن سے رسائی مانگیں۔</span></p>
+      <button class="btn ghost" id="noAccessOut"><span>Log out</span><span class="ur">لاگ آؤٹ</span></button>
+    </div>
+    <div class="madeby"><b>Made by Developer</b><span class="ur">ڈویلپر کی طرف سے تیار کردہ</span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appView" class="hidden">
+  <header class="top">
+    <div style="display:flex;align-items:center;gap:11px"><div class="rm sm"><span>RM</span></div><div class="brand">RANA MOBILE<small id="whoami"></small></div></div>
+    <button class="iconbtn" id="gearBtn" aria-label="Settings" title="Settings">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+  <main>
+    <div id="view"></div>
+    <div class="madeby"><b>Made by Developer</b><span class="ur">ڈویلپر کی طرف سے تیار کردہ</span></div>
+    <div class="printfoot">Made by Developer &bull; ڈویلپر کی طرف سے تیار کردہ</div>
+  </main>
+  <nav class="tabs" id="tabs"></nav>
+</div>
+
+<script>
+/* ====== SETUP: your Supabase details ====== */
+const SUPABASE_URL = "https://qdlcjyihsljhhieelmbf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_9w5HVm0yzBbp_H2Vib94Tw_VgtbCCnI";
+/* ========================================== */
+
+const DEFAULT_VALUE = 14220, DEFAULT_CUT = 2000;
+const CATS = { Regular:{value:14220,cut:2000}, Large:{value:'',cut:''}, Source:{value:14220,cut:0}, Other:{value:'',cut:''} };
+const EXP_CATS = ['Tea & Food','Shop Rent','Electricity / Bill','Staff Salary','Transport','Internet / Load','Repair','Other'];
+
+/* ---- bilingual labels (English + Urdu) ---- */
+const UR = {
+ 'Home':'ہوم','Records':'ریکارڈ','Add':'نیا','Hisab':'حساب','Expenses':'اخراجات','Reports':'رپورٹس','Settings':'سیٹنگز',
+ 'Card number':'کارڈ نمبر','Customer number':'کسٹمر نمبر','Category':'قسم','Card value':'کارڈ کی رقم','Cutting':'کٹنگ',
+ 'Customer gets':'کسٹمر کو ملے گا','Status':'حالت','Payment':'ادائیگی','Pending':'انتظار','Done':'مکمل','Paid':'ادا','Unpaid':'باقی',
+ 'Card photo':'کارڈ کی تصویر','Payment photo':'ادائیگی کی تصویر','Note':'نوٹ','Save entry':'انٹری محفوظ کریں','New card entry':'نئی کارڈ انٹری',
+ "Today's cutting":'آج کی کٹنگ','Card value today':'آج کارڈ کی رقم','Customers payout':'کسٹمر کو ادائیگی','Pending cards':'زیرِ انتظار کارڈ',
+ 'Net today':'آج کا خالص منافع',"Today's entries":'آج کی انٹریاں','Cards today':'آج کے کارڈ','Card records':'کارڈ ریکارڈ','All':'سب',
+ 'Date':'تاریخ','Delete entry':'انٹری حذف کریں','Daily expenses':'روزانہ اخراجات','Expense':'خرچہ','Income':'آمدنی','Amount':'رقم','Details':'تفصیل',
+ 'Add entry':'انٹری شامل کریں','Print / PDF':'پرنٹ / پی ڈی ایف','Export Excel (CSV)':'ایکسل ایکسپورٹ','Backup':'بیک اپ','Team':'ٹیم',
+ 'Admin':'ایڈمن','Staff':'اسٹاف','Cash in hand':'نقد رقم','Daily hisab':'روزانہ حساب','From':'سے','To':'تک','Show report':'رپورٹ دکھائیں',
+ 'Net profit':'خالص منافع','Total card value':'کل کارڈ رقم','Cutting (profit)':'کٹنگ (منافع)','Expenses today':'آج کے اخراجات',
+ 'Income today':'آج کی آمدنی','Cutting today':'آج کی کٹنگ','Entries':'انٹریاں','Permissions':'اجازتیں','Logged in as':'لاگ اِن بطور',
+ 'Download backup (JSON)':'بیک اپ ڈاؤن لوڈ','Restore from backup file':'بیک اپ فائل سے بحال کریں','Mark done':'مکمل کریں','Mark pending':'انتظار میں ڈالیں',
+ 'Mark paid':'ادا شدہ کریں','Mark unpaid':'باقی کریں','Edit details':'تفصیل بدلیں','Save changes':'تبدیلیاں محفوظ کریں','Log out':'لاگ آؤٹ',
+ 'Settings & backup':'سیٹنگز اور بیک اپ','New card':'نیا کارڈ','Pending (today)':'آج انتظار میں','Done today':'آج مکمل','Month':'مہینہ',
+ 'Month expenses':'مہینے کے اخراجات','Month cash in hand':'مہینے کی نقد رقم','Role':'کردار','Email':'ای میل','Give access':'رسائی دیں',
+ 'Remove access':'رسائی ختم','Apply':'لاگو کریں','Feature':'خصوصیت','Cards (all)':'کارڈ (سب)','Other income':'دیگر آمدنی','Total cutting':'کل کٹنگ',
+ 'Cutting received (paid)':'وصول کٹنگ (ادا)','Cutting unpaid':'باقی کٹنگ','Cards paid / done':'ادا / مکمل کارڈ',
+ 'Entry saved':'انٹری محفوظ ہو گئی','Updated':'اپ ڈیٹ ہو گیا','Deleted':'حذف ہو گیا','Added':'شامل ہو گیا','Saved':'محفوظ','Photo saved':'تصویر محفوظ',
+ 'Card number must be exactly 13 digits':'کارڈ نمبر پورے 13 ہندسوں کا ہو','Enter the customer number':'کسٹمر نمبر لکھیں','Enter the card value':'کارڈ کی رقم لکھیں',
+ 'Check the cutting amount':'کٹنگ کی رقم چیک کریں','Enter the amount':'رقم لکھیں','Done saving':'مکمل'
+};
+const T = en => `<span>${en}</span><span class="ur" lang="ur">${UR[en]||''}</span>`;
+const B = (cls,en) => `<span class="badge ${cls}">${en}<span class="ur" lang="ur">${UR[en]||''}</span></span>`;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rs = n => 'Rs. ' + Math.round(Number(n)||0).toLocaleString('en-PK');
+const pad = n => String(n).padStart(2,'0');
+const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const monthEnd = d => { const [y,m]=d.split('-').map(Number); return `${y}-${pad(m)}-${pad(new Date(y,m,0).getDate())}`; };
+const fmtNo = s => (s||'').replace(/(\d{4})(\d{4})(\d{4})(\d?)/,'$1 $2 $3 $4').trim();
+const fmtDate = d => { const [y,m,dd]=d.split('-'); return `${dd}-${m}-${y}`; };
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let sb, user, role=null, tab='home';
+const isAdmin = () => role === 'admin';
+const ADMIN_TABS = ['hisab','cash','reports'];
+
+/* ---- animation helpers ---- */
+const num = (n,pre='Rs. ') => `<span class="cnt" data-v="${Math.round(Number(n)||0)}" data-pre="${pre}">${pre}0</span>`;
+function animateCounts(root=document){
+  root.querySelectorAll('.cnt').forEach(el=>{
+    const to=+el.dataset.v||0, pre=el.dataset.pre||'';
+    if(reduce||to===0){ el.textContent=pre+to.toLocaleString('en-PK'); return; }
+    const t0=performance.now(), d=850;
+    const step=t=>{ const p=Math.min(1,(t-t0)/d), e=1-Math.pow(1-p,4);
+      el.textContent=pre+Math.round(to*e).toLocaleString('en-PK'); if(p<1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+function render(html){
+  const v=$('#view'); v.innerHTML=html;
+  [...v.children].forEach((el,i)=>el.style.setProperty('--i',Math.min(i,9)));
+  v.querySelectorAll('.item').forEach((el,i)=>el.style.setProperty('--i',Math.min(i,12)));
+  animateCounts(v);
+}
+const skel = (n=3,hero=false) => (hero?'<div class="skel h"></div>':'')+Array.from({length:n},()=>'<div class="skel"></div>').join('');
+const loading = (hero=false) => { $('#view').innerHTML=skel(3,hero); };
+
+function toast(msg,bad){
+  const t=document.createElement('div'); t.className='toast'+(bad?' bad':'');
+  t.innerHTML=`<span>${esc(msg)}</span>${UR[msg]?`<span class="ur" lang="ur">${UR[msg]}</span>`:''}`;
+  document.body.appendChild(t);
+  setTimeout(()=>t.classList.add('out'),2300); setTimeout(()=>t.remove(),2650);
+}
+function modal(html){
+  const m=document.createElement('div'); m.className='modal';
+  m.innerHTML=`<div class="sheet"><div class="grab"></div>${html}</div>`;
+  const rm=m.remove.bind(m);
+  m.remove=()=>{ if(m.classList.contains('leaving')) return; m.classList.add('leaving'); setTimeout(rm,200); };
+  m.addEventListener('click',e=>{ if(e.target===m) m.remove(); });
+  document.body.appendChild(m); return m;
+}
+function successFx(en){
+  const d=document.createElement('div'); d.className='success';
+  d.innerHTML=`<div class="okb"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-17"/></svg><div>${esc(en)}</div><div class="ur" lang="ur">${UR[en]||''}</div></div>`;
+  document.body.appendChild(d); setTimeout(()=>d.classList.add('out'),1050); setTimeout(()=>d.remove(),1350);
+}
+document.addEventListener('pointerdown',e=>{
+  const el=e.target.closest('.btn,.iconbtn,.item'); if(!el||el.disabled) return;
+  const r=el.getBoundingClientRect(), s=document.createElement('span'), size=Math.max(r.width,r.height)*1.6;
+  s.className='ripple'; s.style.cssText=`width:${size}px;height:${size}px;left:${e.clientX-r.left-size/2}px;top:${e.clientY-r.top-size/2}px`;
+  el.appendChild(s); setTimeout(()=>s.remove(),600);
+});
+/* login card tilt */
+document.addEventListener('pointermove',e=>{
+  const c=$('#c3d'); if(!c||$('#loginView').classList.contains('hidden')) return;
+  const r=c.getBoundingClientRect(), x=(e.clientX-(r.left+r.width/2))/Math.max(r.width,260), y=(e.clientY-(r.top+r.height/2))/Math.max(r.height,260);
+  c.style.setProperty('--rx',Math.max(-16,Math.min(16,-y*18)).toFixed(1)+'deg');
+  c.style.setProperty('--ry',Math.max(-22,Math.min(22,x*24)).toFixed(1)+'deg');
+  c.style.setProperty('--mx',(50+x*60).toFixed(0)+'%');
+});
+
+const ICON = {
+  home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+  add:'<path d="M12 5v14M5 12h14"/>',
+  records:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  hisab:'<path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"/><path d="M8 8h8M8 12h8"/>',
+  cash:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+  reports:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+};
+const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
+
+/* ---------- boot / auth ---------- */
+async function init(){
+  if(SUPABASE_URL.startsWith('PASTE') || SUPABASE_KEY.startsWith('PASTE')){ $('#setupView').classList.remove('hidden'); return; }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const {data:{session}} = await sb.auth.getSession();
+  if(session) startApp(session.user); else showLogin();
+  sb.auth.onAuthStateChange(ev=>{ if(ev==='SIGNED_OUT') showLogin(); });
+}
+function hideAll(){ ['#loginView','#appView','#noAccessView','#setupView'].forEach(s=>$(s).classList.add('hidden')); }
+function showLogin(){ user=null; role=null; hideAll(); $('#loginView').classList.remove('hidden'); }
+$('#loginBtn').onclick = async () => {
+  const email=$('#em').value.trim(), password=$('#pw').value, err=$('#loginErr'); err.classList.add('hidden');
+  if(!email||!password){ err.textContent='Enter email and password.'; err.classList.remove('hidden'); return; }
+  $('#loginBtn').disabled=true;
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
+  $('#loginBtn').disabled=false;
+  if(error){ err.textContent='Login failed. Check email and password.'; err.classList.remove('hidden'); return; }
+  startApp(data.user);
+};
+['#em','#pw'].forEach(s=>$(s).addEventListener('keydown',e=>{ if(e.key==='Enter') $('#loginBtn').click(); }));
+$('#noAccessOut').onclick=()=>sb.auth.signOut();
+
+async function startApp(u){
+  user=u;
+  const r=await sb.rpc('my_role');
+  if(r.error){ hideAll(); $('#noAccessView').classList.remove('hidden'); console.error(r.error); toast('Setup not finished: run update2.sql in Supabase',true); return; }
+  role=r.data;
+  if(!role){ hideAll(); $('#noAccessView').classList.remove('hidden'); return; }
+  hideAll(); $('#appView').classList.remove('hidden');
+  $('#whoami').textContent=`${u.email} · ${isAdmin()?'Admin':'Staff'}`;
+  const tabs = isAdmin()
+    ? [['home','Home'],['records','Records'],['add','Add'],['hisab','Hisab'],['cash','Expenses'],['reports','Reports']]
+    : [['home','Home'],['add','Add'],['records','Records']];
+  $('#tabs').innerHTML=tabs.map(([k,l])=> k==='add'
+    ? `<button data-t="add" aria-label="Add card"><span class="plus">${svg('add')}</span></button>`
+    : `<button data-t="${k}">${svg(k)}<span class="lbl"><b>${l}</b><em lang="ur">${UR[l]}</em></span></button>`).join('');
+  $('#tabs').onclick=e=>{ const b=e.target.closest('button'); if(b) go(b.dataset.t); };
+  $('#gearBtn').onclick=()=>go('settings');
+  go('home');
+}
+function go(t){
+  if(!isAdmin() && ADMIN_TABS.includes(t)) t='home';
+  tab=t;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.t===t));
+  window.scrollTo({top:0,behavior:'instant'});
+  ({home:vHome,add:vAdd,records:vRecords,hisab:vHisab,cash:vCash,reports:vReports,settings:vSettings})[t]();
+}
+
+/* ---------- data helpers ---------- */
+async function fetchRange(from,to,withLedger=true){
+  const cq=sb.from('cards').select('*').gte('entry_date',from).lte('entry_date',to).order('created_at',{ascending:false}).limit(5000);
+  const lq=withLedger?sb.from('ledger').select('*').gte('entry_date',from).lte('entry_date',to).order('created_at',{ascending:false}).limit(5000):Promise.resolve({data:[]});
+  const [c,l]=await Promise.all([cq,lq]);
+  if(c.error) throw c.error; if(l.error) throw l.error;
+  return {cards:c.data, ledger:l.data};
+}
+const total = (a,f)=>a.reduce((s,x)=>s+(Number(f(x))||0),0);
+function summarize(cards,ledger){
+  const value=total(cards,c=>c.card_value), cut=total(cards,c=>c.cutting);
+  const paidCut=total(cards.filter(c=>c.paid),c=>c.cutting);
+  const inc=total(ledger.filter(x=>x.kind==='income'),x=>x.amount);
+  const exp=total(ledger.filter(x=>x.kind==='expense'),x=>x.amount);
+  return {n:cards.length,value,cut,payout:value-cut,paidCut,unpaidCut:cut-paidCut,
+    paidN:cards.filter(c=>c.paid).length, doneN:cards.filter(c=>c.status==='done').length,
+    inc,exp,profit:cut+inc-exp,cash:paidCut+inc-exp};
+}
+const statusBadge = c => c.status==='done' ? B('b-ok','Done') : B('b-wait','Pending');
+const paidBadge = c => c.paid ? B('b-ok','Paid') : B('b-bad','Unpaid');
+function cardItem(c){
+  return `<div class="item" data-id="${c.id}">
+    <div class="between"><div><div class="no">${esc(fmtNo(c.card_no))}</div>
+      <div class="sub">${esc(c.customer_no)} &bull; ${esc(c.category)} &bull; ${fmtDate(c.entry_date)}</div></div>
+      <div class="money"><b>${rs(c.cutting)}</b><div class="sub">of ${rs(c.card_value)}</div></div></div>
+    <div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap">${statusBadge(c)}${paidBadge(c)}
+      ${c.card_pic_path?'<span class="badge b-gold">Card pic</span>':''}${c.proof_path?'<span class="badge b-gold">Pay pic</span>':''}</div>
+  </div>`;
+}
+function bindItems(list,after){
+  document.querySelectorAll('.item[data-id]').forEach(el=>{ el.onclick=()=>openCard(list.find(c=>c.id===el.dataset.id), after); });
+}
+const fail = e => { console.error(e); toast(e.message||'Something went wrong', true); };
+
+/* ---------- Home ---------- */
+async function vHome(){
+  loading(true);
+  try{
+    const t=todayStr();
+    const [{cards,ledger}, pend]=await Promise.all([ fetchRange(t,t,isAdmin()), sb.from('cards').select('id',{count:'exact',head:true}).eq('status','pending') ]);
+    const s=summarize(cards,ledger);
+    const list=`<h3>${T("Today's entries")}</h3>${cards.length?cards.map(cardItem).join(''):'<div class="empty">No entries yet today.</div>'}`;
+    if(isAdmin()){
+      render(`
+        <div class="hero"><div class="l"><span>Today's cutting</span><span class="ur" lang="ur">${UR["Today's cutting"]}</span></div><div class="v">${num(s.cut)}</div>
+          <div class="s">${s.n} card${s.n===1?'':'s'} &bull; ${fmtDate(t)}</div></div>
+        <div class="grid g2">
+          <div class="card stat"><div class="l">${T('Card value today')}</div><div class="v">${num(s.value)}</div></div>
+          <div class="card stat"><div class="l">${T('Customers payout')}</div><div class="v">${num(s.payout)}</div></div>
+          <div class="card stat"><div class="l">${T('Pending cards')}</div><div class="v">${num(pend.count??0,'')}</div></div>
+          <div class="card stat"><div class="l">${T('Net today')}</div><div class="v">${num(s.profit)}</div></div>
+        </div>
+        <button class="btn" onclick="go('add')"><span>New card entry</span><span class="ur" lang="ur">${UR['New card entry']}</span></button>
+        <div>${list}</div>`);
+    }else{
+      render(`
+        <div class="hero"><div class="l"><span>Cards today</span><span class="ur" lang="ur">${UR['Cards today']}</span></div><div class="v">${num(s.n,'')}</div>
+          <div class="s">${fmtDate(t)}</div></div>
+        <div class="grid g2">
+          <div class="card stat"><div class="l">${T('Pending (today)')}</div><div class="v">${num(pend.count??0,'')}</div></div>
+          <div class="card stat"><div class="l">${T('Done today')}</div><div class="v">${num(s.doneN,'')}</div></div>
+        </div>
+        <button class="btn" onclick="go('add')"><span>New card entry</span><span class="ur" lang="ur">${UR['New card entry']}</span></button>
+        <div>${list}</div>`);
+    }
+    bindItems(cards,()=>go('home'));
+  }catch(e){ fail(e); }
+}
+
+/* ---------- Add card ---------- */
+function vAdd(){
+  render(`
+    <h2>${T('New card entry')}</h2>
+    <div class="card">
+      <label for="cardNo" style="margin-top:0">${T('Card number')}</label>
+      <input id="cardNo" class="big" inputmode="numeric" maxlength="13" placeholder="0000000000000" autocomplete="off">
+      <div class="hint" id="cardHint"><span>13 digits, numbers only</span><span id="cnt" class="tnum">0/13</span></div>
+
+      <label for="custNo">${T('Customer number')}</label>
+      <input id="custNo" type="tel" inputmode="numeric" maxlength="13" placeholder="03XXXXXXXXX" autocomplete="off">
+
+      <label>${T('Category')}</label>
+      <div class="seg" id="catSeg">${Object.keys(CATS).map((k,i)=>`<button type="button" data-c="${k}" class="${i===0?'on':''}">${k}</button>`).join('')}</div>
+
+      <div class="row">
+        <div><label for="val">${T('Card value')}</label><input id="val" type="number" inputmode="numeric" value="${DEFAULT_VALUE}"></div>
+        <div><label for="cut">${T('Cutting')}</label><input id="cut" type="number" inputmode="numeric" value="${DEFAULT_CUT}"></div>
+      </div>
+      <div class="hint"><span>${T('Customer gets')}</span><b id="payout" class="tnum" style="color:var(--gold-hi)"></b></div>
+
+      <div class="row">
+        <div><label for="stat">${T('Status')}</label><select id="stat"><option value="pending">Pending</option><option value="done">Done</option></select></div>
+        <div><label for="paid">${T('Payment')}</label><select id="paid"><option value="0">Unpaid</option><option value="1">Paid</option></select></div>
+      </div>
+
+      <label for="cpic">${T('Card photo')}</label>
+      <input id="cpic" type="file" accept="image/*">
+      <img id="prevc" class="proof hidden" alt="Card preview" style="max-height:200px">
+
+      <label for="proof">${T('Payment photo')}</label>
+      <input id="proof" type="file" accept="image/*">
+      <img id="prev" class="proof hidden" alt="Payment preview" style="max-height:200px">
+
+      <label for="note">${T('Note')}</label>
+      <input id="note" placeholder="e.g. source name">
+
+      <button class="btn" id="saveBtn" style="margin-top:22px"><span>Save entry</span><span class="ur" lang="ur">${UR['Save entry']}</span></button>
+    </div>`);
+  let cat='Regular';
+  const calc=()=>{ $('#payout').textContent=rs((+$('#val').value||0)-(+$('#cut').value||0)); };
+  $('#cardNo').oninput=e=>{ e.target.value=e.target.value.replace(/\D/g,'').slice(0,13); $('#cnt').textContent=e.target.value.length+'/13'; $('#cardHint').classList.remove('err'); };
+  $('#custNo').oninput=e=>{ e.target.value=e.target.value.replace(/\D/g,'').slice(0,13); };
+  $('#catSeg').onclick=e=>{ const b=e.target.closest('button'); if(!b) return;
+    cat=b.dataset.c; document.querySelectorAll('#catSeg button').forEach(x=>x.classList.toggle('on',x===b));
+    $('#val').value=CATS[cat].value; $('#cut').value=CATS[cat].cut; calc(); };
+  $('#val').oninput=calc; $('#cut').oninput=calc; calc();
+  const bindPrev=(inp,img)=>{ $(inp).onchange=e=>{ const f=e.target.files[0], p=$(img);
+    if(f){ p.src=URL.createObjectURL(f); p.classList.remove('hidden'); } else p.classList.add('hidden'); }; };
+  bindPrev('#proof','#prev'); bindPrev('#cpic','#prevc');
+  $('#saveBtn').onclick=()=>saveCard(cat);
+}
+function compress(file){
+  return new Promise((res,rej)=>{
+    const img=new Image(), u=URL.createObjectURL(file);
+    img.onload=()=>{ const s=Math.min(1,1280/Math.max(img.width,img.height));
+      const c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b=>{ URL.revokeObjectURL(u); b?res(b):rej(new Error('Could not read photo')); },'image/jpeg',.72); };
+    img.onerror=()=>rej(new Error('Could not read photo')); img.src=u;
+  });
+}
+async function uploadPhoto(file,tag){
+  const blob=await compress(file);
+  const path=`${user.id}/${tag}-${Date.now()}-${Math.random().toString(36).slice(2,6)}.jpg`;
+  const up=await sb.storage.from('proofs').upload(path,blob,{contentType:'image/jpeg'});
+  if(up.error) throw up.error;
+  return path;
+}
+async function saveCard(cat){
+  const card_no=$('#cardNo').value, customer_no=$('#custNo').value;
+  const card_value=+$('#val').value, cutting=+$('#cut').value;
+  const file=$('#proof').files[0], cfile=$('#cpic').files[0];
+  if(!/^\d{13}$/.test(card_no)){ $('#cardHint').classList.remove('err'); void $('#cardHint').offsetWidth; $('#cardHint').classList.add('err'); return toast('Card number must be exactly 13 digits',true); }
+  if(customer_no.length<10) return toast('Enter the customer number',true);
+  if(!(card_value>0)) return toast('Enter the card value',true);
+  if(!(cutting>=0) || cutting>card_value) return toast('Check the cutting amount',true);
+  const btn=$('#saveBtn'); btn.disabled=true;
+  try{
+    const dup=await sb.rpc('card_seen',{p_card:card_no});
+    if(!dup.error && dup.data && !confirm(`This card number was already entered on ${fmtDate(dup.data)}. Save again?`)){ btn.disabled=false; return; }
+    const path = file ? await uploadPhoto(file,'pay') : null;
+    const cpath = cfile ? await uploadPhoto(cfile,'card') : null;
+    const ins=await sb.from('cards').insert({
+      card_no,customer_no,category:cat,card_value,cutting,
+      status:$('#stat').value, paid:$('#paid').value==='1',
+      proof_path:path, card_pic_path:cpath, note:$('#note').value.trim()||null,
+      entry_date:todayStr(), created_by_email:user.email });
+    if(ins.error){ if(isAdmin()) await sb.storage.from('proofs').remove([path,cpath].filter(Boolean)); throw ins.error; }
+    successFx('Entry saved'); setTimeout(()=>go('home'),900);
+  }catch(e){ fail(e); btn.disabled=false; }
+}
+
+/* ---------- Card detail ---------- */
+async function openCard(c,done){
+  if(!c) return;
+  const m=modal(`
+    <div class="between"><h2 style="margin:0;font-size:19px">${esc(fmtNo(c.card_no))}</h2><button class="iconbtn" id="xc" aria-label="Close">&times;</button></div>
+    <p style="color:var(--mute);margin:6px 0 12px;font-size:13px">${esc(c.customer_no)} &bull; ${esc(c.category)} &bull; ${fmtDate(c.entry_date)}${c.created_by_email?'<br>Entered by '+esc(c.created_by_email):''}</p>
+    <div class="grid g2">
+      <div class="card stat"><div class="l">${T('Card value')}</div><div class="v">${rs(c.card_value)}</div></div>
+      <div class="card stat"><div class="l">${T('Cutting')}</div><div class="v">${rs(c.cutting)}</div></div>
+    </div>
+    ${c.note?`<p>${esc(c.note)}</p>`:''}
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" id="tStat">${c.status==='done'?T('Mark pending'):T('Mark done')}</button>
+      <button class="btn ghost" id="tPaid">${c.paid?T('Mark unpaid'):T('Mark paid')}</button>
+    </div>
+    <div id="pfc" style="margin-top:8px"></div>
+    <div id="pf" style="margin-top:8px"></div>
+    <label for="addc">${c.card_pic_path?'Replace card photo':'Add card photo'}<span class="ur" lang="ur">${UR['Card photo']}</span></label><input id="addc" type="file" accept="image/*">
+    <label for="addp">${c.proof_path?'Replace payment photo':'Add payment photo'}<span class="ur" lang="ur">${UR['Payment photo']}</span></label><input id="addp" type="file" accept="image/*">
+    ${isAdmin()?`
+    <h3>${T('Edit details')}</h3>
+    <div class="card">
+      <label for="e_no" style="margin-top:0">${T('Card number')}</label><input id="e_no" inputmode="numeric" maxlength="13" value="${esc(c.card_no)}">
+      <label for="e_cu">${T('Customer number')}</label><input id="e_cu" inputmode="numeric" value="${esc(c.customer_no)}">
+      <div class="row"><div><label for="e_val">${T('Card value')}</label><input id="e_val" type="number" value="${c.card_value}"></div>
+      <div><label for="e_cut">${T('Cutting')}</label><input id="e_cut" type="number" value="${c.cutting}"></div></div>
+      <button class="btn" id="e_save" style="margin-top:16px"><span>Save changes</span><span class="ur" lang="ur">${UR['Save changes']}</span></button>
+    </div>
+    <button class="btn bad" id="del" style="margin-top:18px"><span>Delete entry</span><span class="ur" lang="ur">${UR['Delete entry']}</span></button>`:''}`);
+  m.querySelector('#xc').onclick=()=>m.remove();
+  const upd=async patch=>{ const r=await sb.from('cards').update(patch).eq('id',c.id); if(r.error) return fail(r.error); m.remove(); toast('Updated'); done&&done(); };
+  m.querySelector('#tStat').onclick=()=>upd({status:c.status==='done'?'pending':'done'});
+  m.querySelector('#tPaid').onclick=()=>upd({paid:!c.paid});
+  if(isAdmin()){
+    m.querySelector('#e_save').onclick=()=>{
+      const no=m.querySelector('#e_no').value.replace(/\D/g,''), cu=m.querySelector('#e_cu').value.replace(/\D/g,'');
+      const v=+m.querySelector('#e_val').value, ct=+m.querySelector('#e_cut').value;
+      if(!/^\d{13}$/.test(no)) return toast('Card number must be exactly 13 digits',true);
+      if(cu.length<10) return toast('Enter the customer number',true);
+      if(!(v>0)) return toast('Enter the card value',true);
+      if(!(ct>=0)||ct>v) return toast('Check the cutting amount',true);
+      upd({card_no:no,customer_no:cu,card_value:v,cutting:ct});
+    };
+    m.querySelector('#del').onclick=async()=>{
+      if(!confirm('Delete this entry? This cannot be undone.')) return;
+      const old=[c.proof_path,c.card_pic_path].filter(Boolean); if(old.length) await sb.storage.from('proofs').remove(old);
+      const r=await sb.from('cards').delete().eq('id',c.id); if(r.error) return fail(r.error);
+      m.remove(); toast('Deleted'); done&&done(); };
+  }
+  const attach=(sel,field,tag)=>{
+    m.querySelector(sel).onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      try{
+        const np=await uploadPhoto(f,tag);
+        const r=await sb.from('cards').update({[field]:np}).eq('id',c.id);
+        if(r.error){ await sb.storage.from('proofs').remove([np]); throw r.error; }
+        if(c[field]) await sb.storage.from('proofs').remove([c[field]]);
+        m.remove(); toast('Photo saved'); done&&done();
+      }catch(err){ fail(err); }
+    };
+  };
+  attach('#addc','card_pic_path','card'); attach('#addp','proof_path','pay');
+  const show=async(path,sel,title)=>{
+    const box=m.querySelector(sel);
+    if(!path){ box.innerHTML=`<div class="empty" style="padding:14px">No ${title.toLowerCase()}</div>`; return; }
+    const r=await sb.storage.from('proofs').createSignedUrl(path,600);
+    if(r.data) box.innerHTML=`<div style="color:var(--mute);font-size:12.5px;font-weight:700">${title}</div><img class="proof" src="${r.data.signedUrl}" alt="${title}">`;
+  };
+  show(c.card_pic_path,'#pfc','Card photo'); show(c.proof_path,'#pf','Payment photo');
+}
+
+/* ---------- Records ---------- */
+let rq='', rf='all';
+function vRecords(){
+  render(`<h2>${T('Card records')}</h2>
+    <input id="q" placeholder="Search card or customer number" inputmode="numeric" value="${esc(rq)}">
+    <div class="seg" style="margin:12px 0 16px" id="flt">
+      ${[['all','All'],['pending','Pending'],['unpaid','Unpaid'],['done','Done']].map(([k,l])=>`<button data-f="${k}" class="${rf===k?'on':''}"><span>${l}</span><span class="ur" lang="ur">${UR[l]}</span></button>`).join('')}</div>
+    ${isAdmin()?'':'<div class="hint" style="margin:-6px 0 12px"><span>Staff can see today\'s entries only. <span class="ur" lang="ur">اسٹاف صرف آج کی انٹریاں دیکھ سکتا ہے۔</span></span></div>'}
+    <div id="rl"></div>`);
+  let timer; $('#q').oninput=e=>{ rq=e.target.value.replace(/\D/g,''); clearTimeout(timer); timer=setTimeout(loadList,300); };
+  $('#flt').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; rf=b.dataset.f;
+    document.querySelectorAll('#flt button').forEach(x=>x.classList.toggle('on',x===b)); loadList(); };
+  loadList();
+}
+async function loadList(){
+  const box=$('#rl'); box.innerHTML=skel(3);
+  let q=sb.from('cards').select('*').order('created_at',{ascending:false}).limit(200);
+  if(rq) q=q.or(`card_no.ilike.%${rq}%,customer_no.ilike.%${rq}%`);
+  if(rf==='pending') q=q.eq('status','pending');
+  if(rf==='done') q=q.eq('status','done');
+  if(rf==='unpaid') q=q.eq('paid',false);
+  const {data,error}=await q; if(error) return fail(error);
+  box.innerHTML=data.length?data.map(cardItem).join(''):'<div class="empty">No cards found.</div>';
+  box.querySelectorAll('.item').forEach((el,i)=>el.style.setProperty('--i',Math.min(i,12)));
+  bindItems(data,loadList);
+}
+
+/* ---------- Daily hisab (admin) ---------- */
+let hDate=todayStr();
+function vHisab(){
+  render(`<div class="printhead">RANA MOBILE &mdash; Daily Hisab</div><h2 class="noprint">${T('Daily hisab')}</h2>
+    <div class="row noprint"><input type="date" id="hd" value="${hDate}"><button class="btn sm ghost" id="pr" style="flex:0 0 auto"><span>Print / PDF</span><span class="ur" lang="ur">${UR['Print / PDF']}</span></button></div>
+    <div id="hb"></div>`);
+  $('#hd').onchange=e=>{ hDate=e.target.value||todayStr(); loadHisab(); };
+  $('#pr').onclick=()=>window.print();
+  loadHisab();
+}
+async function loadHisab(){
+  const box=$('#hb'); box.innerHTML='<div style="height:14px"></div>'+skel(2,true);
+  try{
+    const {cards,ledger}=await fetchRange(hDate,hDate); const s=summarize(cards,ledger);
+    box.innerHTML=`<div style="height:14px"></div>
+      <div class="hero"><div class="l"><span>Cutting on ${fmtDate(hDate)}</span><span class="ur" lang="ur">${UR['Cutting']}</span></div><div class="v">${num(s.cut)}</div><div class="s">${s.n} card${s.n===1?'':'s'}</div></div>
+      <div class="card" style="margin-top:12px"><table>
+        <tr><td>${T('Total card value')}</td><td class="n">${rs(s.value)}</td></tr>
+        <tr><td>${T('Cutting (profit)')}</td><td class="n">${rs(s.cut)}</td></tr>
+        <tr><td>${T('Customers payout')}</td><td class="n">${rs(s.payout)}</td></tr>
+        <tr><td>${T('Cards paid / done')}</td><td class="n">${s.paidN} / ${s.doneN}</td></tr>
+        <tr><td>${T('Cutting received (paid)')}</td><td class="n">${rs(s.paidCut)}</td></tr>
+        <tr><td>${T('Cutting unpaid')}</td><td class="n">${rs(s.unpaidCut)}</td></tr>
+        <tr><td>${T('Other income')}</td><td class="n">${rs(s.inc)}</td></tr>
+        <tr><td>${T('Expenses')}</td><td class="n">${rs(s.exp)}</td></tr>
+        <tr><td><b>${T('Net profit')}</b></td><td class="n"><b>${rs(s.profit)}</b></td></tr>
+        <tr><td><b>${T('Cash in hand')}</b></td><td class="n"><b>${rs(s.cash)}</b></td></tr></table></div>
+      <h3>${T('Entries')}</h3>${cards.length?cards.map(cardItem).join(''):'<div class="empty">No entries on this date.</div>'}
+      ${ledger.length?`<h3>${T('Expenses')}</h3><div class="card"><table>${ledger.map(x=>`<tr><td>${esc(x.title)}${x.category&&x.category!==x.title?' <span style="color:var(--mute)">('+esc(x.category)+')</span>':''}</td><td class="n" style="color:${x.kind==='income'?'var(--ok)':'var(--bad)'}">${x.kind==='income'?'+':'−'}${rs(x.amount)}</td></tr>`).join('')}</table></div>`:''}`;
+    [...box.children].forEach((el,i)=>el.style.setProperty('--i',Math.min(i,8)));
+    box.querySelectorAll('.item').forEach((el,i)=>el.style.setProperty('--i',Math.min(i,12)));
+    animateCounts(box); bindItems(cards,loadHisab);
+  }catch(e){ fail(e); }
+}
+
+/* ---------- Daily expenses (admin) ---------- */
+let cDate=todayStr();
+function vCash(){
+  render(`<h2>${T('Daily expenses')}</h2>
+    <div class="card">
+      <div class="seg" id="kseg"><button data-k="expense" class="on"><span>Expense</span><span class="ur" lang="ur">${UR['Expense']}</span></button><button data-k="income"><span>Income</span><span class="ur" lang="ur">${UR['Income']}</span></button></div>
+      <label for="cd">${T('Date')}</label><input id="cd" type="date" value="${cDate}">
+      <div id="catWrap"><label for="lc">${T('Category')}</label>
+        <select id="lc">${EXP_CATS.map(x=>`<option>${x}</option>`).join('')}</select></div>
+      <label for="lt">${T('Details')}</label><input id="lt" placeholder="e.g. 2 cups chai, line 3 repair">
+      <label for="la">${T('Amount')}</label><input id="la" type="number" inputmode="numeric">
+      <button class="btn" id="ls" style="margin-top:18px"><span>Add entry</span><span class="ur" lang="ur">${UR['Add entry']}</span></button>
+    </div><div id="cl"></div>`);
+  let kind='expense';
+  $('#cd').onchange=e=>{ cDate=e.target.value||todayStr(); loadCash(); };
+  $('#kseg').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; kind=b.dataset.k;
+    document.querySelectorAll('#kseg button').forEach(x=>x.classList.toggle('on',x===b));
+    $('#catWrap').classList.toggle('hidden',kind==='income'); };
+  $('#ls').onclick=async()=>{
+    const amount=+$('#la').value, detail=$('#lt').value.trim();
+    const category=kind==='expense'?$('#lc').value:'Income';
+    if(!(amount>0)) return toast('Enter the amount',true);
+    if(!detail && kind==='income') return toast('Enter the amount',true);
+    const r=await sb.from('ledger').insert({kind,title:detail||category,category,amount,entry_date:cDate});
+    if(r.error) return fail(r.error); toast('Added'); $('#la').value=''; $('#lt').value=''; loadCash(); };
+  loadCash();
+}
+async function loadCash(){
+  const box=$('#cl'); box.innerHTML='<div style="height:14px"></div>'+skel(3);
+  try{
+    const mfrom=cDate.slice(0,8)+'01';
+    const [day,mon]=await Promise.all([fetchRange(cDate,cDate), fetchRange(mfrom,monthEnd(cDate))]);
+    const sd=summarize(day.cards,day.ledger), sm=summarize(mon.cards,mon.ledger);
+    box.innerHTML=`
+      <h3><span>${fmtDate(cDate)}</span></h3>
+      <div class="grid g2">
+        <div class="card stat"><div class="l">${T('Expenses today')}</div><div class="v" style="color:var(--bad)">${num(sd.exp)}</div></div>
+        <div class="card stat"><div class="l">${T('Income today')}</div><div class="v" style="color:var(--ok)">${num(sd.inc)}</div></div>
+        <div class="card stat"><div class="l">${T('Cutting today')}</div><div class="v">${num(sd.cut)}</div></div>
+        <div class="card stat"><div class="l">${T('Net today')}</div><div class="v" style="color:var(--gold-hi)">${num(sd.profit)}</div></div>
+      </div>
+      <h3>${T('Entries')}</h3>
+      ${day.ledger.length?day.ledger.map(x=>`<div class="item" style="cursor:default"><div class="between"><div><div class="no" style="font-size:15px;letter-spacing:.3px">${esc(x.title)}</div><div class="sub">${esc(x.category||x.kind)}</div></div>
+        <div class="row" style="flex:0 0 auto"><b style="color:${x.kind==='income'?'var(--ok)':'var(--bad)'}">${x.kind==='income'?'+':'−'}${rs(x.amount)}</b>
+        <button class="iconbtn" data-del="${x.id}" aria-label="Delete">&times;</button></div></div></div>`).join(''):'<div class="empty">No expenses or income on this date.</div>'}
+      <h3><span>${T('Month')} (${cDate.slice(0,7)})</span></h3>
+      <div class="grid g2">
+        <div class="card stat"><div class="l">${T('Month expenses')}</div><div class="v">${num(sm.exp)}</div></div>
+        <div class="card stat"><div class="l">${T('Month cash in hand')}</div><div class="v" style="color:var(--gold-hi)">${num(sm.cash)}</div></div>
+      </div>`;
+    box.querySelectorAll('.item').forEach((el,i)=>el.style.setProperty('--i',Math.min(i,12)));
+    animateCounts(box);
+    box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async(ev)=>{
+      ev.stopPropagation();
+      if(!confirm('Delete this entry?')) return;
+      const r=await sb.from('ledger').delete().eq('id',b.dataset.del); if(r.error) return fail(r.error); loadCash(); });
+  }catch(e){ fail(e); }
+}
+
+/* ---------- Reports (admin) ---------- */
+let rFrom=todayStr().slice(0,8)+'01', rTo=todayStr(), rData=null;
+function vReports(){
+  render(`<div class="printhead">RANA MOBILE &mdash; Report</div><h2 class="noprint">${T('Reports')}</h2>
+    <div class="row noprint"><div><label for="rf" style="margin-top:0">${T('From')}</label><input type="date" id="rf" value="${rFrom}"></div>
+      <div><label for="rt" style="margin-top:0">${T('To')}</label><input type="date" id="rt" value="${rTo}"></div></div>
+    <div class="noprint"><button class="btn" id="rg"><span>Show report</span><span class="ur" lang="ur">${UR['Show report']}</span></button></div>
+    <div id="rb"></div>`);
+  $('#rg').onclick=()=>{ rFrom=$('#rf').value; rTo=$('#rt').value; runReport(); };
+  runReport();
+}
+async function runReport(){
+  const box=$('#rb'); box.innerHTML=skel(2,true);
+  try{
+    rData=await fetchRange(rFrom,rTo); const {cards,ledger}=rData; const s=summarize(cards,ledger);
+    box.innerHTML=`
+      <div class="hero"><div class="l"><span>${fmtDate(rFrom)} to ${fmtDate(rTo)}</span><span class="ur" lang="ur">${UR['Total cutting']}</span></div><div class="v">${num(s.cut)}</div><div class="s">${s.n} cards</div></div>
+      <div class="card"><table>
+        <tr><td>${T('Total card value')}</td><td class="n">${rs(s.value)}</td></tr>
+        <tr><td>${T('Customers payout')}</td><td class="n">${rs(s.payout)}</td></tr>
+        <tr><td>${T('Cutting received (paid)')}</td><td class="n">${rs(s.paidCut)}</td></tr>
+        <tr><td>${T('Cutting unpaid')}</td><td class="n">${rs(s.unpaidCut)}</td></tr>
+        <tr><td>${T('Other income')}</td><td class="n">${rs(s.inc)}</td></tr>
+        <tr><td>${T('Expenses')}</td><td class="n">${rs(s.exp)}</td></tr>
+        <tr><td><b>${T('Net profit')}</b></td><td class="n"><b>${rs(s.profit)}</b></td></tr></table></div>
+      <div class="row noprint"><button class="btn ghost" id="csv"><span>Export Excel (CSV)</span><span class="ur" lang="ur">${UR['Export Excel (CSV)']}</span></button><button class="btn ghost" id="pdf"><span>Print / PDF</span><span class="ur" lang="ur">${UR['Print / PDF']}</span></button></div>
+      <h3>${T('Cards (all)')}</h3>
+      <div class="card scroll"><table><tr><th>Date</th><th>Card</th><th>Customer</th><th>Type</th><th class="n">Value</th><th class="n">Cutting</th><th>Status</th><th>Paid</th></tr>
+      ${cards.map(c=>`<tr><td>${fmtDate(c.entry_date)}</td><td>${esc(c.card_no)}</td><td>${esc(c.customer_no)}</td><td>${esc(c.category)}</td><td class="n">${Math.round(c.card_value)}</td><td class="n">${Math.round(c.cutting)}</td><td>${c.status}</td><td>${c.paid?'Yes':'No'}</td></tr>`).join('')||'<tr><td colspan="8">No cards in this range.</td></tr>'}</table></div>`;
+    [...box.children].forEach((el,i)=>el.style.setProperty('--i',Math.min(i,8)));
+    animateCounts(box);
+    $('#csv').onclick=exportCSV; $('#pdf').onclick=()=>window.print();
+  }catch(e){ fail(e); }
+}
+function download(name,text,type){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type}));
+  a.download=name; document.body.appendChild(a); a.click(); a.remove();
+}
+const csvCell = v => '"'+String(v??'').replace(/"/g,'""')+'"';
+function exportCSV(){
+  if(!rData) return;
+  const head=['Date','Card number','Customer number','Category','Card value','Cutting','Status','Paid','Note'];
+  const rows=rData.cards.map(c=>[c.entry_date,c.card_no,c.customer_no,c.category,c.card_value,c.cutting,c.status,c.paid?'Yes':'No',c.note||'']);
+  const lrows=rData.ledger.map(x=>[x.entry_date,'','',x.kind+(x.category?' - '+x.category:''),x.kind==='income'?x.amount:-x.amount,'','','',x.title]);
+  const csv='\uFEFF'+[['RANA MOBILE report - Made by Developer'],head,...rows,...lrows].map(r=>r.map(csvCell).join(',')).join('\r\n');
+  download(`rana-mobile-${rFrom}_to_${rTo}.csv`,csv,'text/csv;charset=utf-8');
+}
+
+/* ---------- Settings ---------- */
+function vSettings(){
+  const permRows=[
+    ['Add new cards','y','y'],['See today\'s entries','y','y'],['Mark done / paid, add photos','y','y'],
+    ['See old records & search','y','n'],['Edit amounts, delete entries','y','n'],['Daily hisab & profit','y','n'],
+    ['Daily expenses & income','y','n'],['Reports, Excel, backup','y','n'],['Manage team','y','n']];
+  render(`<h2>${T('Settings & backup')}</h2>
+    <div class="card"><div style="color:var(--mute);font-size:12.5px;font-weight:700">${T('Logged in as')}</div>
+      <div style="font-weight:700;margin-top:4px">${esc(user.email)}</div>
+      <div style="margin-top:8px">${isAdmin()?B('b-gold','Admin'):B('b-wait','Staff')}</div></div>
+    ${isAdmin()?`
+    <h3>${T('Team')}</h3>
+    <div class="card">
+      <div id="team"><div class="skel" style="height:60px"></div></div>
+      <label for="te">${T('Email')}</label><input id="te" type="email" placeholder="staff@example.com">
+      <label for="tr">${T('Role')}</label>
+      <select id="tr"><option value="staff">Staff</option><option value="admin">Admin</option><option value="none">Remove access</option></select>
+      <button class="btn" id="ta" style="margin-top:16px"><span>Apply</span><span class="ur" lang="ur">${UR['Apply']}</span></button>
+      <div class="hint" style="margin-top:10px"><span>First create the user in Supabase &rarr; Authentication &rarr; Users, then give the role here.</span></div>
+    </div>
+    <h3>${T('Permissions')}</h3>
+    <div class="card scroll perm"><table><tr><th>${'Feature'}</th><th class="c">Admin</th><th class="c">Staff</th></tr>
+      ${permRows.map(([f,a,s])=>`<tr><td>${f}</td><td class="c ${a==='y'?'yes':'no'}">${a==='y'?'✔':'✖'}</td><td class="c ${s==='y'?'yes':'no'}">${s==='y'?'✔':'✖'}</td></tr>`).join('')}</table></div>
+    <h3>${T('Backup')}</h3>
+    <div class="card">
+      <p style="margin-top:0;color:var(--mute);font-size:14px">Download all entries as a file. Photos stay in Supabase.</p>
+      <button class="btn ghost" id="bk"><span>Download backup (JSON)</span><span class="ur" lang="ur">${UR['Download backup (JSON)']}</span></button>
+      <label for="rs" style="margin-top:18px">${T('Restore from backup file')}</label>
+      <input id="rs" type="file" accept="application/json,.json">
+    </div>`:''}
+    <button class="btn bad" id="lo" style="margin-top:24px"><span>Log out</span><span class="ur" lang="ur">${UR['Log out']}</span></button>`);
+  $('#lo').onclick=()=>sb.auth.signOut();
+  if(!isAdmin()) return;
+  loadTeam();
+  $('#ta').onclick=async()=>{
+    const email=$('#te').value.trim(); if(!email) return toast('Enter an email address',true);
+    const r=await sb.rpc('admin_set_role',{p_email:email,p_role:$('#tr').value});
+    if(r.error) return fail(r.error); toast('Updated'); $('#te').value=''; loadTeam(); };
+  $('#bk').onclick=async()=>{
+    try{
+      const [c,l]=await Promise.all([sb.from('cards').select('*').order('created_at').limit(50000), sb.from('ledger').select('*').order('created_at').limit(50000)]);
+      if(c.error) throw c.error; if(l.error) throw l.error;
+      download(`rana-mobile-backup-${todayStr()}.json`,JSON.stringify({app:'RANA MOBILE',date:todayStr(),cards:c.data,ledger:l.data},null,1),'application/json');
+    }catch(e){ fail(e); } };
+  $('#rs').onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{
+      const j=JSON.parse(await f.text());
+      if(!Array.isArray(j.cards)||!Array.isArray(j.ledger)) throw new Error('This is not a RANA MOBILE backup');
+      if(!confirm(`Add ${j.cards.length} cards and ${j.ledger.length} ledger entries from this backup?`)) return;
+      const strip=r=>{ const {id,created_by,...rest}=r; return rest; };
+      for(let i=0;i<j.cards.length;i+=200){ const r=await sb.from('cards').insert(j.cards.slice(i,i+200).map(strip)); if(r.error) throw r.error; }
+      for(let i=0;i<j.ledger.length;i+=200){ const r=await sb.from('ledger').insert(j.ledger.slice(i,i+200).map(strip)); if(r.error) throw r.error; }
+      toast('Saved');
+    }catch(err){ fail(err); }
+    e.target.value=''; };
+}
+async function loadTeam(){
+  const box=$('#team'); if(!box) return;
+  const r=await sb.rpc('admin_list_team');
+  if(r.error){ box.innerHTML=`<div class="hint err">${esc(r.error.message)}</div>`; return; }
+  box.innerHTML=r.data.length?r.data.map(x=>`<div class="between" style="padding:9px 0;border-bottom:1px solid var(--line)">
+      <div style="min-width:0"><div style="font-weight:700;overflow:hidden;text-overflow:ellipsis">${esc(x.email)}</div></div>
+      <div class="row" style="flex:0 0 auto;gap:8px">${x.role==='admin'?B('b-gold','Admin'):B('b-wait','Staff')}
+      ${x.user_id!==user.id?`<button class="iconbtn" data-rm="${esc(x.email)}" aria-label="Remove access" style="width:34px;height:34px">&times;</button>`:''}</div></div>`).join(''):'<div class="empty">No team members yet.</div>';
+  box.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Remove access for '+b.dataset.rm+'?')) return;
+    const r2=await sb.rpc('admin_set_role',{p_email:b.dataset.rm,p_role:'none'}); if(r2.error) return fail(r2.error); toast('Updated'); loadTeam(); });
+}
+
+init();
+</script>
+</body>
+</html>
